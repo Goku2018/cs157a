@@ -1,6 +1,6 @@
 package cs157a;
 
-import org.cs157a.DatabaseConnection;
+import cs157a.DatabaseConnection;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
