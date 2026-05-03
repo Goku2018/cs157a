@@ -16,7 +16,8 @@ public class ViewBooksPanel extends JPanel {
 
         // Column names
         String[] columns = {"Book ID", "Title", "Author", "Genre", "ISBN", "Status"};
-        tableModel = new Deprecated(columns, 0);
+        tableModel = new DefaultTableModel(columns, 0);
+        table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
 
         JScrollPane scrollPane = new JScrollPane(table);

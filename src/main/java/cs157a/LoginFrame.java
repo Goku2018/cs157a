@@ -42,7 +42,7 @@ public class LoginFrame extends JFrame{
         //Password field
         gbc.gridx = 0;
         gbc.gridy = 1;
-        JLabel passwordLabel = new JLabel("Pass word:");
+        JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setFont(new Font("Arial", Font.BOLD, 14));
         panel.add(passwordLabel, gbc);
 
