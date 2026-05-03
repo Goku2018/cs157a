@@ -16,22 +16,25 @@ public class LoginFrame extends JFrame{
     public LoginFrame(){
 
         setTitle("Library Management System - Login");
-        setSize(400, 220);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8,8,8);
+        gbc.insets = new Insets(15, 15,15,15);
 
         //Email field
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
-        panel.add(new JLabel("Email:"), gbc);
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        panel.add(emailLabel, gbc);
 
-        emailField = new JTextField(18);
+        emailField = new JTextField(25);
+        emailField.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(emailField, gbc);
@@ -39,24 +42,30 @@ public class LoginFrame extends JFrame{
         //Password field
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(new JLabel("Password:"), gbc);
+        JLabel passwordLabel = new JLabel("Pass word:");
+        passwordLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        panel.add(passwordLabel, gbc);
 
-        passwordField = new JPasswordField(18);
+        passwordField = new JPasswordField(25);
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
         panel.add(passwordField, gbc);
 
         //Login button
         JButton loginButton = new JButton("Login");
+        loginButton.setFont(new Font("Arial", Font.BOLD, 16));
+        loginButton.setPreferredSize(new Dimension(120, 40));
+
         gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(loginButton, gbc);
 
         //Message label
         messageLabel = new JLabel(" ");
         messageLabel.setForeground(Color.RED);
+        messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridy = 3;
         panel.add(messageLabel, gbc);
 
