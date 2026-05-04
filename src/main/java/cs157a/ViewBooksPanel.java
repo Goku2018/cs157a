@@ -37,16 +37,21 @@ public class ViewBooksPanel extends JPanel {
         tableModel.setRowCount(0); // clear existing rows
         List<Book> books = bookDAO.getAllBooks();  // calls backend
 
-        for (Book b : books) {
-            Object[] row = {
-                    b.getBookId(),
-                    b.getTitle(),
-                    b.getAuthor(),
-                    b.getGenre(),
-                    b.getIsbn(),
-                    b.getStatus()
-            };
-            tableModel.addRow(row);
+        try {
+            for (Book b : books) {
+                Object[] row = {
+                        b.getBookId(),
+                        b.getTitle(),
+                        b.getAuthor(),
+                        b.getGenre(),
+                        b.getIsbn(),
+                        b.getStatus()
+                };
+                tableModel.addRow(row);
+            }
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "Error loading books: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 }
