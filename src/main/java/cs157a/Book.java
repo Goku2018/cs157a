@@ -27,7 +27,7 @@ public class Book {
     // Getters and Setters
     public int getBookId() { return bookId; }
     public void setBookId(int bookId) { this.bookId = bookId; }
-    public String getTitle() { return isbn.getIsbn(); }
+    public String getTitle() { return isbn.getTitle(); }
     public void setTitle(String title) { isbn.setTitle(title); }
     public String getAuthor() { return isbn.getAuthor(); }
     public void setAuthor(String author) { isbn.setAuthor(author); }

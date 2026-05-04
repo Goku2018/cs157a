@@ -11,7 +11,27 @@ import java.util.Set;
 public class BookDAO {
 
     // BookDAO.java
-    private ISBNDAO isbnDAO;
+    private ISBNDAO isbnDAO = new ISBNDAO();
+//    private List<Book> convertResultSet(ResultSet books) throws Exception{
+//        List<Book> bookList = new ArrayList<Book>();
+//        try(Connection conn = DatabaseConnection.getConnection()) {
+//            while (books.next()) {
+//                int bookid = books.getInt("BookID");
+//                String status = books.getString("Status");
+//                String isbn = books.getString("ISBN");
+//                ISBN isbnObj;
+//                if(isbn == null){
+//                    isbnObj = new ISBN("");
+//                }
+//                else{
+//                    isbnObj = isbnDAO.checkISBNExists(isbn);
+//                }
+//                bookList.add(new Book(bookid, isbnObj, status));
+//            }
+//        }
+//        return bookList;
+//    }
+
     private List<Book> convertResultSet(ResultSet books) throws Exception{
         List<Book> bookList = new ArrayList<Book>();
         try(Connection conn = DatabaseConnection.getConnection()) {
@@ -19,17 +39,43 @@ public class BookDAO {
                 int bookid = books.getInt("BookID");
                 String status = books.getString("Status");
                 String isbn = books.getString("ISBN");
-                ISBN isbnObj;
-                if(isbn == null){
-                    isbnObj = new ISBN("");
+                String title, author, genre;
+                if (isbn == null) {
+                    isbn = "";
+                    title = "";
+                    author = "";
+                    genre = "";
                 }
-                else{
-                    isbnObj = isbnDAO.checkISBNExists(isbn);
+                else {//fill in book info from ISBNs table
+                    try (PreparedStatement lookupISBN = conn.prepareStatement("SELECT * FROM ISBNs WHERE ISBN = ?")) {
+                        lookupISBN.setString(1, isbn);
+                        try (ResultSet book = lookupISBN.executeQuery()) {
+                            if (book.next()) {
+                                title = book.getString("Title");
+                                if (title == null) {
+                                    title = "";
+                                }
+                                author = book.getString("Author");
+                                if (author == null) {
+                                    author = "";
+                                }
+                                genre = book.getString("Genre");
+                                if (genre == null) {
+                                    genre = "";
+                                }
+                            } else {//no matching ISBN in ISBNs
+                                title = "";
+                                author = "";
+                                genre = "";
+                            }
+                        }
+                    }
                 }
-                bookList.add(new Book(bookid, isbnObj, status));
+                bookList.add(new Book(bookid, title, author, genre, isbn, status));
             }
         }
         return bookList;
+
     }
 
     // Get all books from database
@@ -84,7 +130,37 @@ public class BookDAO {
         }
         return searchResults;
     }
+    /*
 
+    // Search books by title, author, or genre
+    List<Book> searchBooks(String keyword, String searchType){
+        List<Book> searchResults = new ArrayList<Book>();
+        try(Connection conn = DatabaseConnection.getConnection()) {
+            Set<String> allowedColumns = Set.of("Title", "Author", "Genre");
+            if(allowedColumns.contains(searchType)) {
+                String query = "SELECT b.* FROM Books b JOIN ISBNs i ON b.ISBN = i.ISBN WHERE " + searchType + " LIKE ?";
+                try (PreparedStatement getResults = conn.prepareStatement(query)) {
+                    getResults.setString(1, "%" + keyword + "%");
+                    try (ResultSet books = getResults.executeQuery()) {
+                        searchResults = convertResultSet(books);
+                    }
+                }
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            while(e.getNextException() != null){
+                e.printStackTrace();
+            }
+            throw new RuntimeException("Failed to fetch books. Database error.", e);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch books", e);
+        }
+        return searchResults;
+    }
+*/
     // Add a new book (and ISBN if needed)
     boolean addBook(Book book){
         try(Connection conn = DatabaseConnection.getConnection()){
