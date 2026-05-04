@@ -90,7 +90,7 @@ public class BookDAO {
         try(Connection conn = DatabaseConnection.getConnection()){
             ISBN isbn = isbnDAO.checkISBNExists(book.getIsbn());
             if(isbn == null){
-                isbn = new ISBN(book.getIsbn(), book.getTitle(), book.getAuthor(), book.getGenre()));
+                isbn = new ISBN(book.getIsbn(), book.getTitle(), book.getAuthor(), book.getGenre());
                 if(!isbnDAO.registerISBN(isbn)){
                     return false;
                 }
@@ -98,7 +98,7 @@ public class BookDAO {
                     book.setIsbnObj(isbn);
                 }
             }
-            try (PreparedStatement insertBook = conn.prepareStatement("INSERT INTO Books (ISBN, Status) VALUES ('?', '?')")) {
+            try (PreparedStatement insertBook = conn.prepareStatement("INSERT INTO Books (ISBN, Status) VALUES (?, ?)")) {
                 insertBook.setString(1, book.getIsbn());
                 insertBook.setString(2, book.getStatus());
                 insertBook.executeUpdate();
@@ -122,8 +122,12 @@ public class BookDAO {
     boolean updateBook(Book book){
         try(Connection conn = DatabaseConnection.getConnection()){
             ISBN isbn = isbnDAO.checkISBNExists(book.getIsbn());
-            if(isbn == null){//book doesn't have valid isbn; must register one
+            isbn = new ISBN(book.getIsbn(), book.getTitle(), book.getAuthor(), book.getGenre());
+            if(!isbnDAO.registerISBN(isbn)){
                 return false;
+            }
+            else{
+                book.setIsbnObj(isbn);
             }
             try (PreparedStatement updateBook = conn.prepareStatement("UPDATE Books SET ISBN = ?, Status = ? WHERE BookID = ?")) {
                 updateBook.setString(1, book.getIsbn());

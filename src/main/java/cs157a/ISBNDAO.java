@@ -11,7 +11,7 @@ import java.util.Set;
 public class ISBNDAO {
     public boolean registerISBN(ISBN isbn){
         try(Connection conn = DatabaseConnection.getConnection()) {
-            try (PreparedStatement insertISBN = conn.prepareStatement("INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES ('?', '?', '?', '?')")) {
+            try (PreparedStatement insertISBN = conn.prepareStatement("INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES (?, ?, ?, ?)")) {
                 insertISBN.setString(1, isbn.getIsbn());
                 insertISBN.setString(2, isbn.getTitle());
                 insertISBN.setString(3, isbn.getAuthor());
