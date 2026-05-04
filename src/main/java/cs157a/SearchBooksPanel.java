@@ -111,6 +111,4 @@ public class SearchBooksPanel extends JPanel {
             statusLabel.setText("Search cleared. Enter a keyword and click Search.");
         }
     }
-}
-
 

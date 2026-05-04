@@ -11,7 +11,7 @@ import java.util.Set;
 public class BookDAO {
 
     // BookDAO.java
-
+    private ISBNDAO isbnDAO;
     private List<Book> convertResultSet(ResultSet books) throws Exception{
         List<Book> bookList = new ArrayList<Book>();
         try(Connection conn = DatabaseConnection.getConnection()) {
@@ -19,43 +19,17 @@ public class BookDAO {
                 int bookid = books.getInt("BookID");
                 String status = books.getString("Status");
                 String isbn = books.getString("ISBN");
-                String title, author, genre;
-                if (isbn == null) {
-                    isbn = "";
-                    title = "";
-                    author = "";
-                    genre = "";
+                ISBN isbnObj;
+                if(isbn == null){
+                    isbnObj = new ISBN("");
                 }
-                else {//fill in book info from ISBNs table
-                    try (PreparedStatement lookupISBN = conn.prepareStatement("SELECT * FROM ISBNs WHERE ISBN = ?")) {
-                        lookupISBN.setString(1, isbn);
-                        try (ResultSet book = lookupISBN.executeQuery()) {
-                            if (book.next()) {
-                                title = book.getString("Title");
-                                if (title == null) {
-                                    title = "";
-                                }
-                                author = book.getString("Author");
-                                if (author == null) {
-                                    author = "";
-                                }
-                                genre = book.getString("Genre");
-                                if (genre == null) {
-                                    genre = "";
-                                }
-                            } else {//no matching ISBN in ISBNs
-                                title = "";
-                                author = "";
-                                genre = "";
-                            }
-                        }
-                    }
+                else{
+                    isbnObj = isbnDAO.checkISBNExists(isbn);
                 }
-                bookList.add(new Book(bookid, title, author, genre, isbn, status));
+                bookList.add(new Book(bookid, isbnObj, status));
             }
         }
         return bookList;
-
     }
 
     // Get all books from database
@@ -114,25 +88,21 @@ public class BookDAO {
     // Add a new book (and ISBN if needed)
     boolean addBook(Book book){
         try(Connection conn = DatabaseConnection.getConnection()){
-            try (PreparedStatement checkISBN = conn.prepareStatement("SELECT * FROM ISBNs WHERE ISBN = ?")) {
-                checkISBN.setString(1,book.getIsbn());
-                try(ResultSet match = checkISBN.executeQuery()){
-                    if(!match.next()){ //ISBN doesn't exists in ISBNs
-                        try (PreparedStatement insertISBN = conn.prepareStatement("INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES ('?', '?', '?', '?')")) {
-                            insertISBN.setString(1, book.getIsbn());
-                            insertISBN.setString(2, book.getTitle());
-                            insertISBN.setString(3, book.getAuthor());
-                            insertISBN.setString(4, book.getGenre());
-                            insertISBN.executeUpdate();
-                        }
-                    }
-                    try (PreparedStatement insertBook = conn.prepareStatement("INSERT INTO Books (ISBN, Status) VALUES ('?', '?')")) {
-                        insertBook.setString(1, book.getIsbn());
-                        insertBook.setString(2, book.getStatus());
-                        insertBook.executeUpdate();
-                        return true;
-                    }
+            ISBN isbn = isbnDAO.checkISBNExists(book.getIsbn());
+            if(isbn == null){
+                isbn = new ISBN(book.getIsbn(), book.getTitle(), book.getAuthor(), book.getGenre()));
+                if(!isbnDAO.registerISBN(isbn)){
+                    return false;
                 }
+                else{
+                    book.setIsbnObj(isbn);
+                }
+            }
+            try (PreparedStatement insertBook = conn.prepareStatement("INSERT INTO Books (ISBN, Status) VALUES ('?', '?')")) {
+                insertBook.setString(1, book.getIsbn());
+                insertBook.setString(2, book.getStatus());
+                insertBook.executeUpdate();
+                return true;
             }
         }
         catch(SQLException e){
@@ -148,11 +118,12 @@ public class BookDAO {
         }
     }
 
-    // Update an existing book
+    // Update an existing book (will fail if updating ISBN to nonexistent one)
     boolean updateBook(Book book){
         try(Connection conn = DatabaseConnection.getConnection()){
-            try(PreparedStatement getBook = conn.prepareStatement()){
-
+            ISBN isbn = isbnDAO.checkISBNExists(book.getIsbn());
+            if(isbn == null){//book doesn't have valid isbn; must register one
+                return false;
             }
             try (PreparedStatement updateBook = conn.prepareStatement("UPDATE Books SET ISBN = ?, Status = ? WHERE BookID = ?")) {
                 updateBook.setString(1, book.getIsbn());
