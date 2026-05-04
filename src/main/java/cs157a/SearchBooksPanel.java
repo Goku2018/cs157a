@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 public class SearchBooksPanel extends JPanel {
     private BookDAO bookDAO;
@@ -39,7 +40,7 @@ public class SearchBooksPanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         //Center panel: results table
-        String[] columns = {"Book ID", "Titkle", "Author", "Genre", "ISBN", "Status"};
+        String[] columns = {"Book ID", "Title", "Author", "Genre", "ISBN", "Status"};
         tableModel = new DefaultTableModel(columns, 0){
             @Override
             public boolean isCellEditable(int row, int column){
@@ -53,14 +54,14 @@ public class SearchBooksPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         //Bottom Panel: Status Label
-        Jpanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        statusLable = new JLabel("Enter a keyboard and click Search");
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        statusLabel = new JLabel("Enter a keyword and click Search");
         bottomPanel.add(statusLabel);
         add(bottomPanel, BorderLayout.SOUTH);
 
         //Event Handleers
-        searchButtom.addActionListener(e->performSearch());
-        clearButtom.addActionListener(e->clearSearch());
+        searchButton.addActionListener(e->performSearch());
+        clearButton.addActionListener(e->clearSearch());
         searchField.addActionListener(e->performSearch()); //Trigger search
 
         }
@@ -71,7 +72,7 @@ public class SearchBooksPanel extends JPanel {
                 return;
             }
             String searchType = (String) searchTypeCombo.getSelectedItem();
-            statusLabel.setText("Searching for " + searchType + " containing '" + keyworo + "'...");
+            statusLabel.setText("Searching for " + searchType + " containing '" + keyword + "'...");
 
             //Clear results
             tableModel.setRowCount(0);
@@ -81,7 +82,7 @@ public class SearchBooksPanel extends JPanel {
                 List<Book> results = bookDAO.searchBooks(keyword, searchType.toLowerCase());
 
                 if(results == null || results.isEmpty()){
-                    statusLabel.setText("No books found matching '" + keyboard + " ' in " + searchType);
+                    statusLabel.setText("No books found matching '" + keyword + "' in " + searchType);
 
                 }else{
                     for(Book book : results){
@@ -93,7 +94,7 @@ public class SearchBooksPanel extends JPanel {
                                 book.getIsbn(),
                                 book.getStatus()
                         };
-                        statusLabel.setText(row);
+                        tableModel.addRow(row);
                     }
                     statusLabel.setText("Found " + results.size() + " book(s).");
                 }
@@ -110,6 +111,6 @@ public class SearchBooksPanel extends JPanel {
             statusLabel.setText("Search cleared. Enter a keyword and click Search.");
         }
     }
-
+}
 
 
