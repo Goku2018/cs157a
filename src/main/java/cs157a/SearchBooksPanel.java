@@ -3,6 +3,7 @@ package cs157a;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 
 public class SearchBooksPanel extends JPanel {
     private BookDAO bookDAO;
@@ -44,7 +45,69 @@ public class SearchBooksPanel extends JPanel {
             public boolean isCellEditable(int row, int column){
                 return false; // read-only
             }
+        };
+        resultTable = new JTable(tableModel);
+        resultTable.setFillsViewportHeight(true);
+        resultTable.setRowHeight(25);
+        JScrollPane scrollPane = new JScrollPane(resultTable);
+        add(scrollPane, BorderLayout.CENTER);
+
+        //Bottom Panel: Status Label
+        Jpanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        statusLable = new JLabel("Enter a keyboard and click Search");
+        bottomPanel.add(statusLabel);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        //Event Handleers
+        searchButtom.addActionListener(e->performSearch());
+        clearButtom.addActionListener(e->clearSearch());
+        searchField.addActionListener(e->performSearch()); //Trigger search
+
         }
+        private void performSearch(){
+            String keyword = searchField.getText().trim();
+            if(keyword.isEmpty()){
+                statusLabel.setText("Please enter a keyword to search");
+                return;
+            }
+            String searchType = (String) searchTypeCombo.getSelectedItem();
+            statusLabel.setText("Searching for " + searchType + " containing '" + keyworo + "'...");
+
+            //Clear results
+            tableModel.setRowCount(0);
+
+            //Call backend with try catch
+            try{
+                List<Book> results = bookDAO.searchBooks(keyword, searchType.toLowerCase());
+
+                if(results == null || results.isEmpty()){
+                    statusLabel.setText("No books found matching '" + keyboard + " ' in " + searchType);
+
+                }else{
+                    for(Book book : results){
+                        Object[] row =  {
+                                book.getBookId(),
+                                book.getTitle(),
+                                book.getAuthor(),
+                                book.getGenre(),
+                                book.getIsbn(),
+                                book.getStatus()
+                        };
+                        statusLabel.setText(row);
+                    }
+                    statusLabel.setText("Found " + results.size() + " book(s).");
+                }
+            } catch(Exception ex){
+                statusLabel.setText("Search failed.");
+                JOptionPane.showMessageDialog(this, "Error performing search: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+
+            }
+        }
+        private void clearSearch(){
+            searchField.setText("");
+            tableModel.setRowCount(0);
+            statusLabel.setText("Search cleared. Enter a keyword and click Search.");
         }
     }
 
