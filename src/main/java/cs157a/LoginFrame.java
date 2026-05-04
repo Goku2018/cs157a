@@ -81,27 +81,31 @@ public class LoginFrame extends JFrame{
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
-        if(email.isEmpty() || password.isEmpty()){
+        if (email.isEmpty() || password.isEmpty()) {
             messageLabel.setText("Please fill in both fields.");
             return;
         }
 
         //Accessing database
-        String role = DatabaseConnection.authenticate(email, password);
-        if(role != null) {
-            String dashboardRole = role.equalsIgnoreCase("Staff") ? "staff" : "member";
-            messageLabel.setText("Login Successful" + role + ")");
-            new MainDashboard(dashboardRole).setVisible(true);
-            dispose();
-        }
-        else {
-            messageLabel.setText("Invalid email or password.  Try again");
-            passwordField.setText("");
+        try {
+            String role = DatabaseConnection.authenticate(email, password);
+            if (role != null) {
+                String dashboardRole = role.equalsIgnoreCase("Staff") ? "staff" : "member";
+                messageLabel.setText("Login Successful" + role + ")");
+                new MainDashboard(dashboardRole).setVisible(true);
+                dispose();
+            } else {
+                messageLabel.setText("Invalid email or password.  Try again");
+                passwordField.setText("");
+            }
+        } catch (Exception ex) {
+            messageLabel.setText("Database error: " + ex.getMessage());
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Unable to connect to database. \n Please check you connection.", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
     }
-    public static void main(String[] args){
-        SwingUtilities.invokeLater(()-> new LoginFrame().setVisible(true));
-
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }
 }
