@@ -232,9 +232,15 @@ public class BookDAO {
                 }
                 book.setIsbnObj(isbn);
             }
-            //book.setIsbnObj(isbn);
+            else{
+                isbn = new ISBN(book.getIsbn(), book.getTitle(), book.getAuthor(), book.getGenre());
+                if(!isbnDAO.updateISBN(isbn)){
+                    return false;
+                }
+                book.setIsbnObj(isbn);
+            }
             try (PreparedStatement updateBook = conn.prepareStatement("UPDATE Books SET ISBN = ?, Status = ? WHERE BookID = ?")) {
-                updateBook.setString(1, book.getIsbn());
+                updateBook.setString(1, isbn.getIsbn());
                 updateBook.setString(2, book.getStatus());
                 updateBook.setInt(3, book.getBookId());
                 int rowsAffected = updateBook.executeUpdate();

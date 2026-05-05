@@ -35,6 +35,29 @@ public class ISBNDAO {
         }
     }
 
+    public boolean updateISBN(ISBN isbn){
+        try(Connection conn = DatabaseConnection.getConnection()) {
+            try (PreparedStatement updateISBN = conn.prepareStatement("UPDATE ISBNs SET Title = ?, Author = ?, Genre = ? WHERE ISBN = ?")) {
+                updateISBN.setString(1, isbn.getTitle());
+                updateISBN.setString(2, isbn.getAuthor());
+                updateISBN.setString(3, isbn.getGenre());
+                updateISBN.setString(4, isbn.getIsbn());
+                return updateISBN.executeUpdate() == 1;
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            while(e.getNextException() != null){
+                e.printStackTrace();
+            }
+            throw new RuntimeException("Failed to update ISBN. Database error.", e);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to update ISBN", e);
+        }
+    }
+
     public List<ISBN> getAllISBNs(){
         List<ISBN> allISBNs = new ArrayList<ISBN>();
         try(Connection conn = DatabaseConnection.getConnection()){
