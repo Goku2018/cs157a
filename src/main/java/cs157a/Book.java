@@ -5,7 +5,9 @@ public class Book {
     private ISBN isbn;
     private String status;
 
-    public Book() {}
+    public Book() {
+        isbn = new ISBN("");
+    }
 
     public Book(int bookId, String title, String author, String genre, String isbn, String status) {
         this.bookId = bookId;

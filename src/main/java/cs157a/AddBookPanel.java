@@ -92,8 +92,8 @@ public class AddBookPanel extends JPanel{
 
         //Event handlers
         addButton.addActionListener(e->addBook());
-        clearButton.addActionListener(e->clearForm());
-
+        clearButton.addActionListener(e->clearForm("Form cleared."));
+        add(formPanel, BorderLayout.CENTER);
     }
 
     private void addBook(){
@@ -110,12 +110,7 @@ public class AddBookPanel extends JPanel{
         }
 
         //Create Book object
-        Book book = new Book();
-        book.setTitle(title);
-        book.setAuthor(author);
-        book.setGenre(genre);
-        book.setIsbn(isbn);
-        book.setStatus(status);
+        Book book = new Book(title, author, genre, isbn, status);
 
         //Call try catch
         try{
@@ -123,7 +118,7 @@ public class AddBookPanel extends JPanel{
             if(success){
                 messageLabel.setText("Book added successfully...");
                 messageLabel.setForeground(Color.GREEN);
-                clearForm();
+                clearForm("Book added successfully...");
             }else {
                 messageLabel.setText("Failed to add book.  Try Again.");
                 messageLabel.setForeground(Color.RED);
@@ -137,13 +132,13 @@ public class AddBookPanel extends JPanel{
         }
 
     }
-    private void clearForm(){
+    private void clearForm(String message){
         titleField.setText("");
         authorField.setText("");
         genreField.setText("");
         isbnField.setText("");
         statusCombo.setSelectedIndex(0);
-        messageLabel.setText("Form cleared.");
+        messageLabel.setText(message);
         messageLabel.setForeground(Color.BLUE);
     }
 }

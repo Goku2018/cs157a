@@ -102,6 +102,33 @@ public class BookDAO {
         return allBooks;
     }
 
+    Book getBookById(int bookId){
+        try(Connection conn = DatabaseConnection.getConnection()){
+            try(PreparedStatement getBook = conn.prepareStatement("SELECT * FROM Books WHERE BookID = ?")){
+                getBook.setInt(1, bookId);
+                try (ResultSet books = getBook.executeQuery()){
+                    List<Book> matches = convertResultSet(books);
+                    if(matches.isEmpty()){
+                        return null;
+                    }
+                    return matches.get(0);
+                }
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            while(e.getNextException() != null){
+                e.printStackTrace();
+            }
+            throw new RuntimeException("Failed to fetch book. Database error.", e);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch book", e);
+        }
+    }
+
+
     // Search books by title, author, or genre
     List<Book> searchBooks(String keyword, String searchType){
         List<Book> searchResults = new ArrayList<Book>();
@@ -198,13 +225,14 @@ public class BookDAO {
     boolean updateBook(Book book){
         try(Connection conn = DatabaseConnection.getConnection()){
             ISBN isbn = isbnDAO.checkISBNExists(book.getIsbn());
-            isbn = new ISBN(book.getIsbn(), book.getTitle(), book.getAuthor(), book.getGenre());
-            if(!isbnDAO.registerISBN(isbn)){
-                return false;
-            }
-            else{
+            if(isbn == null){
+                isbn = new ISBN(book.getIsbn(), book.getTitle(), book.getAuthor(), book.getGenre());
+                if(!isbnDAO.registerISBN(isbn)){
+                    return false;
+                }
                 book.setIsbnObj(isbn);
             }
+            //book.setIsbnObj(isbn);
             try (PreparedStatement updateBook = conn.prepareStatement("UPDATE Books SET ISBN = ?, Status = ? WHERE BookID = ?")) {
                 updateBook.setString(1, book.getIsbn());
                 updateBook.setString(2, book.getStatus());

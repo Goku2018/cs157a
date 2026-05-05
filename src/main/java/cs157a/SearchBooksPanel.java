@@ -59,7 +59,7 @@ public class SearchBooksPanel extends JPanel {
         bottomPanel.add(statusLabel);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        //Event Handleers
+        //Event Handlers
         searchButton.addActionListener(e->performSearch());
         clearButton.addActionListener(e->clearSearch());
         searchField.addActionListener(e->performSearch()); //Trigger search
@@ -79,7 +79,7 @@ public class SearchBooksPanel extends JPanel {
 
             //Call backend with try catch
             try{
-                List<Book> results = bookDAO.searchBooks(keyword, searchType.toLowerCase());
+                List<Book> results = bookDAO.searchBooks(keyword, searchType);
 
                 if(results == null || results.isEmpty()){
                     statusLabel.setText("No books found matching '" + keyword + "' in " + searchType);

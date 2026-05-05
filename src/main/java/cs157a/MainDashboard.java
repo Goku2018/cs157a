@@ -97,12 +97,14 @@ public class MainDashboard extends JFrame {
         contentPanel.add(new ViewBooksPanel(bookDAO), "ViewBooks");
         contentPanel.add(new SearchBooksPanel(bookDAO), "SearchBooks");
         contentPanel.add(new AddBookPanel(bookDAO), "AddBook");
+        contentPanel.add(new UpdateBookPanel(bookDAO), "UpdateBook");
+        contentPanel.add(new DeleteBookPanel(bookDAO), "DeleteBook");
         contentPanel.add(new RegisterMemberPanel(userDAO), "RegisterMember");
 
         // Placeholder panels for other features
         // Placeholder panels for other features
-        contentPanel.add(createPlaceholderPanel("Update Book - Coming Soon"), "UpdateBook");
-        contentPanel.add(createPlaceholderPanel("Delete Book - Coming Soon"), "DeleteBook");
+        //contentPanel.add(createPlaceholderPanel("Update Book - Coming Soon"), "UpdateBook");
+        //contentPanel.add(createPlaceholderPanel("Delete Book - Coming Soon"), "DeleteBook");
         contentPanel.add(createPlaceholderPanel("View All Members - Coming Soon"), "ViewMembers");
         contentPanel.add(createPlaceholderPanel("Update Member - Coming Soon"), "UpdateMember");
         contentPanel.add(createPlaceholderPanel("Delete Member - Coming Soon"), "DeleteMember");
