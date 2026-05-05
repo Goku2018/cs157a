@@ -5,17 +5,17 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class ViewBooksPanel extends JPanel {
-    private BookDAO bookDAO;
+public class ViewMembersPanel extends JPanel {
+    private UserDAO userDAO;
     private JTable table;
     private DefaultTableModel tableModel;
 
-    public ViewBooksPanel(BookDAO bookDAO) {
-        this.bookDAO = bookDAO;
+    public ViewMembersPanel(UserDAO userDAO) {
+        this.userDAO = userDAO;
         setLayout(new BorderLayout());
 
         // Column names
-        String[] columns = {"Book ID", "Title", "Author", "Genre", "ISBN", "Status"};
+        String[] columns = {"User ID", "Full Name", "Email", "Phone", "Address", "Status", "Registration Date"};
         tableModel = new DefaultTableModel(columns, 0);
         table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
@@ -42,17 +42,18 @@ public class ViewBooksPanel extends JPanel {
     }
     private void refreshTable(){
         tableModel.setRowCount(0); // clear existing rows
-        List<Book> books = bookDAO.getAllBooks();  // calls backend
+        List<User> members = userDAO.getAllMembers();  // calls backend
 
         try {
-            for (Book b : books) {
+            for (User u : members) {
                 Object[] row = {
-                        b.getBookId(),
-                        b.getTitle(),
-                        b.getAuthor(),
-                        b.getGenre(),
-                        b.getIsbn(),
-                        b.getStatus()
+                        u.getUserId(),
+                        u.getFullName(),
+                        u.getEmail(),
+                        u.getPhone() != null ? u.getPhone() : "",
+                        u.getAddress() != null ? u.getAddress() : "",
+                        u.getStatus(),
+                        u.getRegistrationDate() != null ? u.getRegistrationDate().toString() : ""
                 };
                 tableModel.addRow(row);
             }

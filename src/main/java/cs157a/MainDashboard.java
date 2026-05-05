@@ -93,6 +93,8 @@ public class MainDashboard extends JFrame {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
+        contentPanel.add(createWelcomePanel(), "Welcome");
+
         // Add real panels (pass DAOs they need)
         contentPanel.add(new ViewBooksPanel(bookDAO), "ViewBooks");
         contentPanel.add(new SearchBooksPanel(bookDAO), "SearchBooks");
@@ -100,12 +102,13 @@ public class MainDashboard extends JFrame {
         contentPanel.add(new UpdateBookPanel(bookDAO), "UpdateBook");
         contentPanel.add(new DeleteBookPanel(bookDAO), "DeleteBook");
         contentPanel.add(new RegisterMemberPanel(userDAO), "RegisterMember");
+        contentPanel.add(new ViewMembersPanel(userDAO),"ViewMembers");
 
         // Placeholder panels for other features
         // Placeholder panels for other features
         //contentPanel.add(createPlaceholderPanel("Update Book - Coming Soon"), "UpdateBook");
         //contentPanel.add(createPlaceholderPanel("Delete Book - Coming Soon"), "DeleteBook");
-        contentPanel.add(createPlaceholderPanel("View All Members - Coming Soon"), "ViewMembers");
+        //contentPanel.add(createPlaceholderPanel("View All Members - Coming Soon"), "ViewMembers");
         contentPanel.add(createPlaceholderPanel("Update Member - Coming Soon"), "UpdateMember");
         contentPanel.add(createPlaceholderPanel("Delete Member - Coming Soon"), "DeleteMember");
         contentPanel.add(createPlaceholderPanel("My Profile - Coming Soon"), "MyProfile");
@@ -120,7 +123,7 @@ public class MainDashboard extends JFrame {
         add(contentPanel);
 
         // Show default panel
-        cardLayout.show(contentPanel, "ViewBooks");
+        cardLayout.show(contentPanel, "Welcome");
     }
 
     private void addMenuItem(JMenu menu, String title, String panelName) {
@@ -146,5 +149,27 @@ public class MainDashboard extends JFrame {
             dispose();
             new LoginFrame().setVisible(true);
         }
+    }
+    //Blank page
+    private JPanel createWelcomePanel(){
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel titleLabel = new JLabel("Library Management System");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(33, 150, 243));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(titleLabel, gbc);
+
+        JLabel subtitleLabel = new JLabel("Select an option from the MENU to begin");
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridy = 1;
+        panel.add(subtitleLabel, gbc);
+
+        return panel;
     }
 }
