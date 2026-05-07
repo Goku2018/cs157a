@@ -103,21 +103,21 @@ public class MainDashboard extends JFrame {
         contentPanel.add(new DeleteBookPanel(bookDAO), "DeleteBook");
         contentPanel.add(new RegisterMemberPanel(userDAO), "RegisterMember");
         contentPanel.add(new ViewMembersPanel(userDAO),"ViewMembers");
+        contentPanel.add(new UpdateMemberPanel(userDAO), "UpdateMember");
+        contentPanel.add(new DeleteMemberPanel(userDAO), "DeleteMember");
+        contentPanel.add(new CheckoutPanel(borrowRecordDAO, bookDAO, userDAO), "Checkout");
+        contentPanel.add(new ReturnPanel(borrowRecordDAO, bookDAO), "Return");
+        contentPanel.add(new ActiveBorrowingsPanel(borrowRecordDAO, bookDAO, userDAO), "ActiveBorrowings");
+        contentPanel.add(new ProcessPaymentPanel(paymentDAO, borrowRecordDAO), "ProcessPayment");
+        contentPanel.add(new ViewUnpaidFinesPanel(borrowRecordDAO, bookDAO, userDAO, paymentDAO), "UnpaidFines");
 
         // Placeholder panels for other features
         // Placeholder panels for other features
-        //contentPanel.add(createPlaceholderPanel("Update Book - Coming Soon"), "UpdateBook");
-        //contentPanel.add(createPlaceholderPanel("Delete Book - Coming Soon"), "DeleteBook");
-        //contentPanel.add(createPlaceholderPanel("View All Members - Coming Soon"), "ViewMembers");
-        contentPanel.add(createPlaceholderPanel("Update Member - Coming Soon"), "UpdateMember");
-        contentPanel.add(createPlaceholderPanel("Delete Member - Coming Soon"), "DeleteMember");
+
         contentPanel.add(createPlaceholderPanel("My Profile - Coming Soon"), "MyProfile");
-        contentPanel.add(createPlaceholderPanel("Check Out Book - Coming Soon"), "Checkout");
-        contentPanel.add(createPlaceholderPanel("Return Book - Coming Soon"), "Return");
-        contentPanel.add(createPlaceholderPanel("Active Borrowings - Coming Soon"), "ActiveBorrowings");
         contentPanel.add(createPlaceholderPanel("My Borrowings - Coming Soon"), "MyBorrowings");
-        contentPanel.add(createPlaceholderPanel("Process Fine Payment - Coming Soon"), "ProcessPayment");
-        contentPanel.add(createPlaceholderPanel("View Unpaid Fines - Coming Soon"), "UnpaidFines");
+        //contentPanel.add(createPlaceholderPanel("Process Fine Payment - Coming Soon"), "ProcessPayment");
+        //contentPanel.add(createPlaceholderPanel("View Unpaid Fines - Coming Soon"), "UnpaidFines");
         contentPanel.add(createPlaceholderPanel("My Fines - Coming Soon"), "MyFines");
 
         add(contentPanel);

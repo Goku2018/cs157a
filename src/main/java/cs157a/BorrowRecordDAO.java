@@ -160,7 +160,7 @@ public class BorrowRecordDAO {
     }
 
     BorrowRecord getBorrowRecordById(long recordId) {
-        String sql = "SELECT 1 FROM BorrowRecords WHERE RecordID = ?";
+        String sql = "SELECT * FROM BorrowRecords WHERE RecordID = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, recordId);
@@ -202,7 +202,12 @@ public class BorrowRecordDAO {
         record.setFineAmount(rs.getDouble("FineAmount"));
         return record;
     }
-
+    // Placeholder for getUnpaidFines - returns empty list for now
+    // Partner will implement real version with database query
+    List<BorrowRecord> getUnpaidFines() {
+        System.out.println("WARNING: getUnpaidFines() placeholder called - returns empty list");
+        return new ArrayList<>();  // Returns empty list for now
+    }
 
 }
 

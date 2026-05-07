@@ -75,6 +75,57 @@ public class UserDAO {
         return null;
     }
 
+    //Using method from UserDAO 
+    User getUserById(int userId){
+        try(Connection conn = DatabaseConnection.getConnection()){
+            try(PreparedStatement getUser = conn.prepareStatement("SELECT * FROM Users WHERE UserID = ?")){
+                getUser.setInt(1, userId);
+                try (ResultSet users = getUser.executeQuery()){
+                    List<User> matches = convertResultSet(users);
+                    if(matches.isEmpty()){
+                        return null;
+                    }
+                    return matches.get(0);
+                }
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            while(e.getNextException() != null){
+                e.printStackTrace();
+            }
+            throw new RuntimeException("Failed to fetch user. Database error.", e);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch user", e);
+        }
+    }
+    //convertResultSet from bookdao
+    private List<User> convertResultSet(ResultSet users) throws Exception {
+        List<User> userList = new ArrayList<>();
+        while (users.next()) {
+            User user = new User();
+
+            user.setUserId(users.getInt("UserID"));
+            user.setFullName(users.getString("FullName"));
+            user.setPassword(users.getString("Password"));
+            user.setStatus(users.getString("Status"));
+            user.setEmail(users.getString("Email"));
+            user.setPhone(users.getString("Phone"));
+            user.setAddress(users.getString("Address"));
+
+            // Handle RegistrationDate (could be null)
+            java.sql.Timestamp timestamp = users.getTimestamp("RegistrationDate");
+            if (timestamp != null) {
+                user.setRegistrationDate(timestamp.toLocalDateTime());
+            }
+
+            userList.add(user);
+        }
+        return userList;
+    }
+
     // Register a new user (staff or member)
     boolean registerUser(User user) {
         if (getUserByEmail(user.getEmail()) != null) {

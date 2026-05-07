@@ -120,7 +120,7 @@ public class ProcessPaymentPanel extends JPanel{
             double amount = Double.parseDouble(amountStr);
             boolean success = paymentDAO.recordPayment(recordId, amount, LocalDate.now());
             if(success){
-                statusLabel.setText("Payment of $" + String.format("%.2f", amount) + " recorded successfully..");
+                statusLabel.setText("Payment of $" + String.format("%.2f ", amount) + " recorded successfully..");
                 statusLabel.setForeground(Color.GREEN);
                 JOptionPane.showMessageDialog(this, "Payment of $" + String.format("%.2f", amount) + "has been recorded.", "Payment Successful", JOptionPane.INFORMATION_MESSAGE);
                 clearForm();

@@ -8,7 +8,7 @@ USE librarydb;
 -- =====================================================
 DROP TABLE IF EXISTS PaymentRecords;
 DROP TABLE IF EXISTS BorrowRecords;
-DROP TABLE IF EXISTS Books;
+DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS ISBNs;
 DROP TABLE IF EXISTS Users;
 
@@ -28,6 +28,8 @@ CREATE TABLE Users (
 );
 
 INSERT INTO Users (FullName, Password, Status, Email, Phone, Address) VALUES
+('admin', 'pass123', 'Staff', 'admin@library.com', '000-0001', '1 Main St, San Jose, CA'),
+('member', 'pass123', 'Member', 'member@library.com', '000-0002', '2 Main St, San Jose, CA'),
 ('John Smith', 'pass123', 'Member', 'john.smith@sjsu.edu', '555-0101', '123 Main St, San Jose, CA'),
 ('Jane Doe', 'pass456', 'Member', 'jane.doe@sjsu.edu', '555-0102', '456 Oak Ave, Santa Clara, CA'),
 ('Bob Johnson', 'pass789', 'Member', 'bob.johnson@sjsu.edu', '555-0103', '789 Pine Rd, Cupertino, CA'),
@@ -75,16 +77,16 @@ INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES
 -- =====================================================
 -- TABLE 3: BOOKS (15 rows)
 -- =====================================================
-CREATE TABLE Books (
-  BookID INT unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE Users (
+  UserID INT unsigned NOT NULL AUTO_INCREMENT,
   ISBN VARCHAR(13) DEFAULT NULL,
   Status VARCHAR(100) NOT NULL,
-  PRIMARY KEY (BookID),
+  PRIMARY KEY (UserID),
   KEY isbn (ISBN),
   CONSTRAINT isbn FOREIGN KEY (ISBN) REFERENCES ISBNs (ISBN)
 );
 
-INSERT INTO Books (ISBN, Status) VALUES
+INSERT INTO Users (ISBN, Status) VALUES
 ('9780743273565', 'Available'),
 ('9780061120084', 'Borrowed'),
 ('9780452284234', 'Available'),
@@ -106,20 +108,20 @@ INSERT INTO Books (ISBN, Status) VALUES
 -- =====================================================
 CREATE TABLE BorrowRecords (
   RecordID BIGINT unsigned NOT NULL AUTO_INCREMENT,
-  BookID INT unsigned DEFAULT NULL,
+  UserID INT unsigned DEFAULT NULL,
   UserID INT unsigned DEFAULT NULL,
   BorrowDate DATETIME DEFAULT NULL,
   DueDate DATETIME NOT NULL,
   ReturnDate DATETIME DEFAULT NULL,
   FineAmount DECIMAL(6,2) DEFAULT NULL,
   PRIMARY KEY (RecordID),
-  KEY bookid (BookID),
+  KEY bookid (UserID),
   KEY userid (UserID),
-  CONSTRAINT bookid FOREIGN KEY (BookID) REFERENCES Books (BookID),
+  CONSTRAINT bookid FOREIGN KEY (UserID) REFERENCES Users (UserID),
   CONSTRAINT userid FOREIGN KEY (UserID) REFERENCES Users (UserID)
 );
 
-INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, DueDate, ReturnDate, FineAmount) VALUES
+INSERT INTO BorrowRecords (UserID, UserID, BorrowDate, DueDate, ReturnDate, FineAmount) VALUES
 (2, 1, '2025-04-01 10:00:00', '2025-04-15 10:00:00', '2025-04-14 10:00:00', 0.00),
 (5, 2, '2025-04-02 11:00:00', '2025-04-16 11:00:00', '2025-04-17 11:00:00', 0.25),
 (8, 3, '2025-04-03 12:00:00', '2025-04-17 12:00:00', NULL, 0.00),
@@ -174,7 +176,7 @@ SELECT 'Users' AS TableName, COUNT(*) AS RowCount FROM Users
 UNION
 SELECT 'ISBNs', COUNT(*) FROM ISBNs
 UNION
-SELECT 'Books', COUNT(*) FROM Books
+SELECT 'Users', COUNT(*) FROM Users
 UNION
 SELECT 'BorrowRecords', COUNT(*) FROM BorrowRecords
 UNION
