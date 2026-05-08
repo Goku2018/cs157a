@@ -4,9 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.util.Map;
 
 public class ViewUnpaidFinesPanel extends JPanel {
     private BorrowRecordDAO borrowRecordDAO;
@@ -25,8 +23,7 @@ public class ViewUnpaidFinesPanel extends JPanel {
 
         setLayout(new BorderLayout());
 
-        // Column names (reused from ViewBooksPanel pattern)
-        String[] columns = {"Record ID", "Book Title", "Member Name", "Due Date", "Days Overdue", "Fine Owed", "Paid Status"};
+        String[] columns = {"Member ID", "Member Name", "Total Fines", "Total Paid", "Amount Owed"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -47,7 +44,7 @@ public class ViewUnpaidFinesPanel extends JPanel {
         refreshBtn.addActionListener(e -> loadUnpaidFines());
         bottomPanel.add(refreshBtn);
 
-        JButton payButton = new JButton("Pay Selected Fine");
+        JButton payButton = new JButton("Pay Selected Balance");
         payButton.addActionListener(e -> paySelectedFine());
         bottomPanel.add(payButton);
 
@@ -66,60 +63,38 @@ public class ViewUnpaidFinesPanel extends JPanel {
         statusLabel.setText("Loading unpaid fines...");
 
         try {
-            List<BorrowRecord> unpaidRecords = borrowRecordDAO.getUnpaidFines();
+            Map<Integer, Double> fineTotalsByUser = borrowRecordDAO.getFineTotalsByUser();
 
-            if (unpaidRecords == null || unpaidRecords.isEmpty()) {
+            if (fineTotalsByUser.isEmpty()) {
                 statusLabel.setText("No unpaid fines found.");
                 return;
             }
 
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             int count = 0;
 
-            for (BorrowRecord record : unpaidRecords) {
-                // Get book title (reused from ReturnPanel pattern)
-                Book book = bookDAO.getBookById(record.getBookId());
-                String bookTitle = (book != null) ? book.getTitle() : "Unknown Book";
+            for (Map.Entry<Integer, Double> entry : fineTotalsByUser.entrySet()) {
+                int userId = entry.getKey();
+                double totalFines = entry.getValue();
+                double totalPaid = paymentDAO.getTotalPaidForUser(userId);
+                double amountOwed = totalFines - totalPaid;
 
-                // Get member name (reused from ReturnPanel pattern)
-                User user = userDAO.getUserById(record.getUserId());
+                User user = userDAO.getUserById(userId);
                 String memberName = (user != null) ? user.getFullName() : "Unknown Member";
 
-                // Calculate days overdue (reused from ReturnPanel.calculateFineDisplay)
-                long daysOverdue = 0;
-                if (record.getDueDate() != null) {
-                    LocalDate today = LocalDate.now();
-                    if (today.isAfter(record.getDueDate())) {
-                        daysOverdue = ChronoUnit.DAYS.between(record.getDueDate(), today);
-                    }
-                }
-
-                // Format due date
-                String dueDateStr = record.getDueDate() != null ?
-                        record.getDueDate().format(dateFormatter) : "N/A";
-
-                // Calculate remaining fine after payments (reused from ProcessPaymentPanel)
-                double totalPaid = paymentDAO.getTotalPaidForBorrowRecord(record.getRecordId());
-                double amountOwed = record.getFineAmount() - totalPaid;
-                String paidStatus = (amountOwed <= 0) ? "Paid" : "Unpaid";
-
-                // Only show if still owed (reused condition)
                 if (amountOwed > 0) {
                     Object[] row = {
-                            record.getRecordId(),
-                            bookTitle,
+                            userId,
                             memberName,
-                            dueDateStr,
-                            daysOverdue,
-                            String.format("$%.2f", amountOwed),
-                            paidStatus
+                            String.format("$%.2f", totalFines),
+                            String.format("$%.2f", totalPaid),
+                            String.format("$%.2f", amountOwed)
                     };
                     tableModel.addRow(row);
                     count++;
                 }
             }
 
-            statusLabel.setText("Found " + count + " unpaid fine(s).");
+            statusLabel.setText("Found " + count + " member(s) with unpaid fines.");
 
         } catch (Exception ex) {
             statusLabel.setText("Error: " + ex.getMessage());
@@ -141,8 +116,8 @@ public class ViewUnpaidFinesPanel extends JPanel {
             return;
         }
 
-        long borrowRecordId = (long) tableModel.getValueAt(selectedRow, 0);
-        String fineAmountStr = (String) tableModel.getValueAt(selectedRow, 5);
+        int userId = (int) tableModel.getValueAt(selectedRow, 0);
+        String fineAmountStr = (String) tableModel.getValueAt(selectedRow, 4);
         double fineAmount = Double.parseDouble(fineAmountStr.replace("$", ""));
 
         if (fineAmount <= 0) {
@@ -160,7 +135,7 @@ public class ViewUnpaidFinesPanel extends JPanel {
 
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                boolean success = paymentDAO.recordPayment(borrowRecordId, fineAmount, LocalDate.now());
+                boolean success = paymentDAO.recordPaymentForUser(userId, fineAmount, LocalDate.now());
                 if (success) {
                     JOptionPane.showMessageDialog(this,
                             "Payment recorded successfully!",

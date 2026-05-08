@@ -40,8 +40,8 @@ public class DatabaseConnection {
         return DriverManager.getConnection(url, user, password);
     }
     //Check if user is in database
-    public static String authenticate(String email, String password){
-        String sql = "SELECT Status FROM Users WHERE Email = ? AND Password = ?";
+    public static User authenticate(String email, String password){
+        String sql = "SELECT UserID, FullName, Password, Status, Email, Phone, Address, RegistrationDate FROM Users WHERE Email = ? AND Password = ?";
         try(Connection conn = getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setString(1, email);
@@ -49,7 +49,19 @@ public class DatabaseConnection {
 
             try(ResultSet rs = pstmt.executeQuery()){
                 if(rs.next()){
-                    return rs.getString("Status");//Staff/Member
+                    User user = new User();
+                    user.setUserId(rs.getInt("UserID"));
+                    user.setFullName(rs.getString("FullName"));
+                    user.setPassword(rs.getString("Password"));
+                    user.setStatus(rs.getString("Status"));
+                    user.setEmail(rs.getString("Email"));
+                    user.setPhone(rs.getString("Phone"));
+                    user.setAddress(rs.getString("Address"));
+                    java.sql.Timestamp registrationDate = rs.getTimestamp("RegistrationDate");
+                    if(registrationDate != null){
+                        user.setRegistrationDate(registrationDate.toLocalDateTime());
+                    }
+                    return user;
                 }
             }
         }

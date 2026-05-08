@@ -1,7 +1,9 @@
+--to run this file: mysql -u <user> -p <your database name> < create_schema.sql
+
 -- =====================================================
 -- USE YOUR DATABASE
 -- =====================================================
-USE librarydb;
+-- USE <your database name>
 
 -- =====================================================
 -- DROP EXISTING TABLES (to start fresh)
@@ -15,17 +17,19 @@ DROP TABLE IF EXISTS Users;
 -- =====================================================
 -- TABLE 1: USERS (15 rows)
 -- =====================================================
-CREATE TABLE Users (
-  UserID INT unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE Users
+(
+  UserID INT unsigned AUTO_INCREMENT,
   FullName VARCHAR(150) NOT NULL,
-  Password VARCHAR(100) NOT NULL,
+  Password VARCHAR(30) NOT NULL,
   Status VARCHAR(30) NOT NULL,
-  Email VARCHAR(150) DEFAULT NULL,
-  Phone VARCHAR(20) DEFAULT NULL,
-  Address VARCHAR(150) DEFAULT NULL,
+  Email VARCHAR(150),
+  Phone VARCHAR(20),
+  Address VARCHAR(150),
   RegistrationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (UserID)
 );
+
 
 INSERT INTO Users (FullName, Password, Status, Email, Phone, Address) VALUES
 ('John Smith', 'pass123', 'Member', 'john.smith@sjsu.edu', '555-0101', '123 Main St, San Jose, CA'),
@@ -47,13 +51,15 @@ INSERT INTO Users (FullName, Password, Status, Email, Phone, Address) VALUES
 -- =====================================================
 -- TABLE 2: ISBNS (15 rows)
 -- =====================================================
-CREATE TABLE ISBNs(
-  ISBN VARCHAR(13) NOT NULL,
-  Title VARCHAR(150) DEFAULT NULL,
-  Author VARCHAR(150) DEFAULT NULL,
-  Genre VARCHAR(30) DEFAULT NULL,
+CREATE TABLE ISBNs
+(
+  ISBN VARCHAR(13),
+  Title VARCHAR(150),
+  Author VARCHAR(150),
+  Genre VARCHAR(30),
   PRIMARY KEY (ISBN)
 );
+
 
 INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES
 ('9780743273565', 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction'),
@@ -75,14 +81,15 @@ INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES
 -- =====================================================
 -- TABLE 3: BOOKS (15 rows)
 -- =====================================================
-CREATE TABLE Books (
-  BookID INT unsigned NOT NULL AUTO_INCREMENT,
-  ISBN VARCHAR(13) DEFAULT NULL,
+CREATE TABLE Books
+(
+  BookID INT unsigned AUTO_INCREMENT,
+  ISBN VARCHAR(13),
+  CONSTRAINT isbn FOREIGN KEY (ISBN) REFERENCES ISBNs(ISBN) ON UPDATE CASCADE,
   Status VARCHAR(100) NOT NULL,
-  PRIMARY KEY (BookID),
-  KEY isbn (ISBN),
-  CONSTRAINT isbn FOREIGN KEY (ISBN) REFERENCES ISBNs (ISBN)
+  PRIMARY KEY (BookID)
 );
+
 
 INSERT INTO Books (ISBN, Status) VALUES
 ('9780743273565', 'Available'),
@@ -104,51 +111,52 @@ INSERT INTO Books (ISBN, Status) VALUES
 -- =====================================================
 -- TABLE 4: BORROWRECORDS (15 rows)
 -- =====================================================
-CREATE TABLE BorrowRecords (
-  RecordID BIGINT unsigned NOT NULL AUTO_INCREMENT,
-  BookID INT unsigned DEFAULT NULL,
-  UserID INT unsigned DEFAULT NULL,
-  BorrowDate DATETIME DEFAULT NULL,
-  DueDate DATETIME NOT NULL,
-  ReturnDate DATETIME DEFAULT NULL,
-  FineAmount DECIMAL(6,2) DEFAULT NULL,
-  PRIMARY KEY (RecordID),
-  KEY bookid (BookID),
-  KEY userid (UserID),
-  CONSTRAINT bookid FOREIGN KEY (BookID) REFERENCES Books (BookID),
-  CONSTRAINT userid FOREIGN KEY (UserID) REFERENCES Users (UserID)
+CREATE TABLE BorrowRecords
+(
+  RecordID BIGINT unsigned AUTO_INCREMENT,
+  BookID INT unsigned,
+  CONSTRAINT bookid FOREIGN KEY (BookID) REFERENCES Books(BookID) ON UPDATE CASCADE ON DELETE SET NULL,
+  UserID INT unsigned,
+  CONSTRAINT userid FOREIGN KEY (UserID) REFERENCES Users(UserID) ON UPDATE CASCADE ON DELETE SET NULL,
+  BorrowDate DATETIME,
+  ReturnDate DATETIME,
+  FineAmount DECIMAL(5,2),
+  PRIMARY KEY (RecordID)
 );
 
-INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, DueDate, ReturnDate, FineAmount) VALUES
-(2, 1, '2025-04-01 10:00:00', '2025-04-15 10:00:00', '2025-04-14 10:00:00', 0.00),
-(5, 2, '2025-04-02 11:00:00', '2025-04-16 11:00:00', '2025-04-17 11:00:00', 0.25),
-(8, 3, '2025-04-03 12:00:00', '2025-04-17 12:00:00', NULL, 0.00),
-(11, 4, '2025-04-04 13:00:00', '2025-04-18 13:00:00', '2025-04-17 13:00:00', 0.00),
-(14, 5, '2025-04-05 14:00:00', '2025-04-19 14:00:00', NULL, 0.00),
-(1, 6, '2025-04-06 09:00:00', '2025-04-20 09:00:00', '2025-04-21 09:00:00', 0.25),
-(3, 7, '2025-04-07 10:00:00', '2025-04-21 10:00:00', '2025-04-20 10:00:00', 0.00),
-(4, 8, '2025-04-08 11:00:00', '2025-04-22 11:00:00', NULL, 0.00),
-(6, 9, '2025-04-09 12:00:00', '2025-04-23 12:00:00', '2025-04-22 12:00:00', 0.00),
-(7, 10, '2025-04-10 13:00:00', '2025-04-24 13:00:00', NULL, 0.00),
-(9, 1, '2025-04-11 14:00:00', '2025-04-25 14:00:00', NULL, 0.00),
-(10, 2, '2025-04-12 09:00:00', '2025-04-26 09:00:00', '2025-04-25 09:00:00', 0.00),
-(12, 3, '2025-04-13 10:00:00', '2025-04-27 10:00:00', NULL, 0.00),
-(13, 4, '2025-04-14 11:00:00', '2025-04-28 11:00:00', '2025-04-29 11:00:00', 0.25),
-(15, 5, '2025-04-15 12:00:00', '2025-04-29 12:00:00', NULL, 0.00);
+
+INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, ReturnDate, FineAmount) VALUES
+(2, 1, '2025-04-01 10:00:00', '2025-04-14 10:00:00', 0.00),
+(5, 2, '2025-04-02 11:00:00', '2025-04-17 11:00:00', 0.25),
+(8, 3, '2025-04-03 12:00:00', NULL, 0.00),
+(11, 4, '2025-04-04 13:00:00', '2025-04-17 13:00:00', 0.00),
+(14, 5, '2025-04-05 14:00:00', NULL, 0.00),
+(1, 6, '2025-04-06 09:00:00', '2025-04-21 09:00:00', 0.25),
+(3, 7, '2025-04-07 10:00:00', '2025-04-20 10:00:00', 0.00),
+(4, 8, '2025-04-08 11:00:00', NULL, 0.00),
+(6, 9, '2025-04-09 12:00:00', '2025-04-22 12:00:00', 0.00),
+(7, 10, '2025-04-10 13:00:00', NULL, 0.00),
+(9, 1, '2025-04-11 14:00:00', NULL, 0.00),
+(10, 2, '2025-04-12 09:00:00', '2025-04-25 09:00:00', 0.00),
+(12, 3, '2025-04-13 10:00:00', NULL, 0.00),
+(13, 4, '2025-04-14 11:00:00', '2025-04-29 11:00:00', 0.25),
+(15, 5, '2025-04-15 12:00:00', NULL, 0.00);
 
 -- =====================================================
 -- TABLE 5: PAYMENTRECORDS (3 rows for paid fines)
 -- =====================================================
-CREATE TABLE PaymentRecords(
-  PaymentID BIGINT unsigned NOT NULL AUTO_INCREMENT,
-  BorrowRecordID BIGINT unsigned NOT NULL,
-  PaymentAmount DECIMAL(6,2) DEFAULT NULL,
-  PaymentDate DATETIME DEFAULT NULL,
-  PRIMARY KEY (PaymentID),
-  CONSTRAINT borrowrecordid FOREIGN KEY (BorrowRecordID) REFERENCES BorrowRecords (RecordID)
+CREATE TABLE PaymentRecords
+(
+  PaymentID BIGINT unsigned AUTO_INCREMENT,
+  UserID INT unsigned,
+  CONSTRAINT useridpr FOREIGN KEY (UserID) REFERENCES Users(UserID) ON UPDATE CASCADE ON DELETE SET NULL,
+  PaymentAmount DECIMAL(6,2),
+  PaymentDate DATETIME,
+  PRIMARY KEY (PaymentID)
 );
 
-INSERT INTO PaymentRecords (BorrowRecordID, PaymentAmount, PaymentDate) VALUES
+
+INSERT INTO PaymentRecords (UserID, PaymentAmount, PaymentDate) VALUES
 (2, 0.25, '2025-04-17 15:00:00'),
 (6, 0.25, '2025-04-21 14:00:00'),
 (14, 0.25, '2025-04-29 16:00:00'),

@@ -5,6 +5,7 @@ import java.awt.*;
 
 public class MainDashboard extends JFrame {
     private String userRole;
+    private int loggedInUserId;
     private CardLayout cardLayout;
     private JPanel contentPanel;
 
@@ -15,8 +16,9 @@ public class MainDashboard extends JFrame {
     private BorrowRecordDAO borrowRecordDAO;
     private PaymentDAO paymentDAO;
 
-    public MainDashboard(String role) {
+    public MainDashboard(String role, int loggedInUserId) {
         this.userRole = role;
+        this.loggedInUserId = loggedInUserId;
 
         //Instantiate DAOs(Placeholder implementations)
         bookDAO = new BookDAO();
@@ -62,6 +64,7 @@ public class MainDashboard extends JFrame {
             addMenuItem(borrowMenu, "Check Out Book", "Checkout");
             addMenuItem(borrowMenu, "Return Book", "Return");
             addMenuItem(borrowMenu, "Active Borrowings", "ActiveBorrowings");
+            addMenuItem(borrowMenu, "Borrow Records", "BorrowRecords");
 
         }else{
             addMenuItem(borrowMenu, "My Borrowings", "MyBorrowings");
@@ -73,6 +76,7 @@ public class MainDashboard extends JFrame {
         if(role.equalsIgnoreCase("staff")){
             addMenuItem(paymentsMenu, "Process Fine Payment", "ProcessPayment");
             addMenuItem(paymentsMenu, "View Unpaid Fines", "UnpaidFines");
+            addMenuItem(paymentsMenu, "Payment History", "PaymentHistory");
 
         }else{
             addMenuItem(paymentsMenu, "My Fines", "MyFines");
@@ -108,8 +112,10 @@ public class MainDashboard extends JFrame {
         contentPanel.add(new CheckoutPanel(borrowRecordDAO, bookDAO, userDAO), "Checkout");
         contentPanel.add(new ReturnPanel(borrowRecordDAO, bookDAO), "Return");
         contentPanel.add(new ActiveBorrowingsPanel(borrowRecordDAO, bookDAO, userDAO), "ActiveBorrowings");
+        contentPanel.add(new BorrowRecordsPanel(borrowRecordDAO, bookDAO, userDAO), "BorrowRecords");
         contentPanel.add(new ProcessPaymentPanel(paymentDAO, borrowRecordDAO), "ProcessPayment");
         contentPanel.add(new ViewUnpaidFinesPanel(borrowRecordDAO, bookDAO, userDAO, paymentDAO), "UnpaidFines");
+        contentPanel.add(new PaymentHistoryPanel(paymentDAO, userDAO), "PaymentHistory");
 
         // Placeholder panels for other features
         // Placeholder panels for other features

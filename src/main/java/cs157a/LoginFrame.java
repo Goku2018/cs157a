@@ -88,11 +88,11 @@ public class LoginFrame extends JFrame{
 
         //Accessing database
         try {
-            String role = DatabaseConnection.authenticate(email, password);
-            if (role != null) {
-                String dashboardRole = role.equalsIgnoreCase("Staff") ? "staff" : "member";
-                messageLabel.setText("Login Successful" + role + ")");
-                new MainDashboard(dashboardRole).setVisible(true);
+            User loggedInUser = DatabaseConnection.authenticate(email, password);
+            if (loggedInUser != null) {
+                String dashboardRole = loggedInUser.getStatus().equalsIgnoreCase("Staff") ? "staff" : "member";
+                messageLabel.setText("Login Successful (" + loggedInUser.getStatus() + ")");
+                new MainDashboard(dashboardRole, loggedInUser.getUserId()).setVisible(true);
                 dispose();
             } else {
                 messageLabel.setText("Invalid email or password.  Try again");
