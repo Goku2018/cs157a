@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.BorderFactory;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class ReturnPanel extends JPanel{
     private BorrowRecordDAO borrowRecordDAO;
@@ -192,7 +193,7 @@ public class ReturnPanel extends JPanel{
             ex.printStackTrace();
         }
     }
-<<<<<<< HEAD
+
     private double calculateFineDisplay(LocalDate dueDate){
         if(dueDate == null) return 0.0;
 
@@ -206,8 +207,6 @@ public class ReturnPanel extends JPanel{
         return 0.0;
     }
 
-=======
->>>>>>> 502e65c0f9102f735f8b0337347bbd25f04570ab
     private void processRecord(){
         String recordIdStr = recordIdField.getText().trim();
         if(recordIdStr.isEmpty()){
