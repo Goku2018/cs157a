@@ -1,19 +1,16 @@
--- =====================================================
--- USE YOUR DATABASE
--- =====================================================
 USE librarydb;
 
 -- =====================================================
--- DROP EXISTING TABLES (to start fresh)
+-- DROP EXISTING TABLES (in correct order due to foreign keys)
 -- =====================================================
 DROP TABLE IF EXISTS PaymentRecords;
 DROP TABLE IF EXISTS BorrowRecords;
-DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Books;
 DROP TABLE IF EXISTS ISBNs;
 DROP TABLE IF EXISTS Users;
 
 -- =====================================================
--- TABLE 1: USERS (15 rows)
+-- TABLE 1: USERS
 -- =====================================================
 CREATE TABLE Users (
   UserID INT unsigned NOT NULL AUTO_INCREMENT,
@@ -47,7 +44,7 @@ INSERT INTO Users (FullName, Password, Status, Email, Phone, Address) VALUES
 ('Mike Nelson', 'pass112', 'Staff', 'mike.nelson@sjsu.edu', '555-0115', '1212 Fig St, Santa Clara, CA');
 
 -- =====================================================
--- TABLE 2: ISBNS (15 rows)
+-- TABLE 2: ISBNS
 -- =====================================================
 CREATE TABLE ISBNs (
   ISBN VARCHAR(13) NOT NULL,
@@ -75,18 +72,18 @@ INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES
 ('9780307588364', 'Gone Girl', 'Gillian Flynn', 'Thriller');
 
 -- =====================================================
--- TABLE 3: BOOKS (15 rows)
+-- TABLE 3: BOOKS (FIXED)
 -- =====================================================
-CREATE TABLE Users (
-  UserID INT unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE Books (
+  BookID INT unsigned NOT NULL AUTO_INCREMENT,
   ISBN VARCHAR(13) DEFAULT NULL,
   Status VARCHAR(100) NOT NULL,
-  PRIMARY KEY (UserID),
-  KEY isbn (ISBN),
-  CONSTRAINT isbn FOREIGN KEY (ISBN) REFERENCES ISBNs (ISBN)
+  PRIMARY KEY (BookID),
+  KEY idx_isbn (ISBN),
+  CONSTRAINT fk_books_isbn FOREIGN KEY (ISBN) REFERENCES ISBNs (ISBN)
 );
 
-INSERT INTO Users (ISBN, Status) VALUES
+INSERT INTO Books (ISBN, Status) VALUES
 ('9780743273565', 'Available'),
 ('9780061120084', 'Borrowed'),
 ('9780452284234', 'Available'),
@@ -104,42 +101,42 @@ INSERT INTO Users (ISBN, Status) VALUES
 ('9780307588364', 'Available');
 
 -- =====================================================
--- TABLE 4: BORROWRECORDS (15 rows)
+-- TABLE 4: BORROWRECORDS (FIXED)
 -- =====================================================
 CREATE TABLE BorrowRecords (
   RecordID BIGINT unsigned NOT NULL AUTO_INCREMENT,
-  UserID INT unsigned DEFAULT NULL,
+  BookID INT unsigned DEFAULT NULL,
   UserID INT unsigned DEFAULT NULL,
   BorrowDate DATETIME DEFAULT NULL,
   DueDate DATETIME NOT NULL,
   ReturnDate DATETIME DEFAULT NULL,
   FineAmount DECIMAL(6,2) DEFAULT NULL,
   PRIMARY KEY (RecordID),
-  KEY bookid (UserID),
-  KEY userid (UserID),
-  CONSTRAINT bookid FOREIGN KEY (UserID) REFERENCES Users (UserID),
-  CONSTRAINT userid FOREIGN KEY (UserID) REFERENCES Users (UserID)
+  KEY idx_book (BookID),
+  KEY idx_user (UserID),
+  CONSTRAINT fk_borrow_book FOREIGN KEY (BookID) REFERENCES Books (BookID),
+  CONSTRAINT fk_borrow_user FOREIGN KEY (UserID) REFERENCES Users (UserID)
 );
 
-INSERT INTO BorrowRecords (UserID, UserID, BorrowDate, DueDate, ReturnDate, FineAmount) VALUES
-(2, 1, '2025-04-01 10:00:00', '2025-04-15 10:00:00', '2025-04-14 10:00:00', 0.00),
-(5, 2, '2025-04-02 11:00:00', '2025-04-16 11:00:00', '2025-04-17 11:00:00', 0.25),
-(8, 3, '2025-04-03 12:00:00', '2025-04-17 12:00:00', NULL, 0.00),
-(11, 4, '2025-04-04 13:00:00', '2025-04-18 13:00:00', '2025-04-17 13:00:00', 0.00),
-(14, 5, '2025-04-05 14:00:00', '2025-04-19 14:00:00', NULL, 0.00),
-(1, 6, '2025-04-06 09:00:00', '2025-04-20 09:00:00', '2025-04-21 09:00:00', 0.25),
-(3, 7, '2025-04-07 10:00:00', '2025-04-21 10:00:00', '2025-04-20 10:00:00', 0.00),
-(4, 8, '2025-04-08 11:00:00', '2025-04-22 11:00:00', NULL, 0.00),
-(6, 9, '2025-04-09 12:00:00', '2025-04-23 12:00:00', '2025-04-22 12:00:00', 0.00),
-(7, 10, '2025-04-10 13:00:00', '2025-04-24 13:00:00', NULL, 0.00),
-(9, 1, '2025-04-11 14:00:00', '2025-04-25 14:00:00', NULL, 0.00),
-(10, 2, '2025-04-12 09:00:00', '2025-04-26 09:00:00', '2025-04-25 09:00:00', 0.00),
-(12, 3, '2025-04-13 10:00:00', '2025-04-27 10:00:00', NULL, 0.00),
-(13, 4, '2025-04-14 11:00:00', '2025-04-28 11:00:00', '2025-04-29 11:00:00', 0.25),
-(15, 5, '2025-04-15 12:00:00', '2025-04-29 12:00:00', NULL, 0.00);
+INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, DueDate, ReturnDate, FineAmount) VALUES
+(1, 2, '2025-04-01 10:00:00', '2025-04-15 10:00:00', '2025-04-14 10:00:00', 0.00),
+(2, 5, '2025-04-02 11:00:00', '2025-04-16 11:00:00', '2025-04-17 11:00:00', 0.25),
+(3, 8, '2025-04-03 12:00:00', '2025-04-17 12:00:00', NULL, 0.00),
+(4, 11, '2025-04-04 13:00:00', '2025-04-18 13:00:00', '2025-04-17 13:00:00', 0.00),
+(5, 14, '2025-04-05 14:00:00', '2025-04-19 14:00:00', NULL, 0.00),
+(6, 1, '2025-04-06 09:00:00', '2025-04-20 09:00:00', '2025-04-21 09:00:00', 0.25),
+(7, 3, '2025-04-07 10:00:00', '2025-04-21 10:00:00', '2025-04-20 10:00:00', 0.00),
+(8, 4, '2025-04-08 11:00:00', '2025-04-22 11:00:00', NULL, 0.00),
+(9, 6, '2025-04-09 12:00:00', '2025-04-23 12:00:00', '2025-04-22 12:00:00', 0.00),
+(10, 7, '2025-04-10 13:00:00', '2025-04-24 13:00:00', NULL, 0.00),
+(11, 9, '2025-04-11 14:00:00', '2025-04-25 14:00:00', NULL, 0.00),
+(12, 10, '2025-04-12 09:00:00', '2025-04-26 09:00:00', '2025-04-25 09:00:00', 0.00),
+(13, 12, '2025-04-13 10:00:00', '2025-04-27 10:00:00', NULL, 0.00),
+(14, 13, '2025-04-14 11:00:00', '2025-04-28 11:00:00', '2025-04-29 11:00:00', 0.25),
+(15, 15, '2025-04-15 12:00:00', '2025-04-29 12:00:00', NULL, 0.00);
 
 -- =====================================================
--- TABLE 5: PAYMENTRECORDS (3 rows for paid fines)
+-- TABLE 5: PAYMENTRECORDS
 -- =====================================================
 CREATE TABLE PaymentRecords (
   PaymentID BIGINT unsigned NOT NULL AUTO_INCREMENT,
@@ -147,37 +144,27 @@ CREATE TABLE PaymentRecords (
   PaymentAmount DECIMAL(6,2) DEFAULT NULL,
   PaymentDate DATETIME DEFAULT NULL,
   PRIMARY KEY (PaymentID),
-  KEY borrowrecordid (BorrowRecordID),
-  CONSTRAINT borrowrecordid FOREIGN KEY (BorrowRecordID) REFERENCES BorrowRecords (RecordID)
+  KEY idx_borrowrecord (BorrowRecordID),
+  CONSTRAINT fk_payment_borrowrecord FOREIGN KEY (BorrowRecordID) REFERENCES BorrowRecords (RecordID)
 );
 
 INSERT INTO PaymentRecords (BorrowRecordID, PaymentAmount, PaymentDate) VALUES
 (2, 0.25, '2025-04-17 15:00:00'),
 (6, 0.25, '2025-04-21 14:00:00'),
-(14, 0.25, '2025-04-29 16:00:00'),
-(1, 0.00, '2025-04-14 12:00:00'),
-(3, 0.00, '2025-04-18 13:00:00'),
-(4, 0.00, '2025-04-17 14:00:00'),
-(5, 0.00, '2025-04-20 15:00:00'),
-(7, 0.00, '2025-04-20 16:00:00'),
-(8, 0.00, '2025-04-23 17:00:00'),
-(9, 0.00, '2025-04-22 18:00:00'),
-(10, 0.00, '2025-04-25 19:00:00'),
-(11, 0.00, '2025-04-26 10:00:00'),
-(12, 0.00, '2025-04-27 11:00:00'),
-(13, 0.00, '2025-04-28 12:00:00'),
-(15, 0.00, '2025-04-30 13:00:00');
-
+(14, 0.25, '2025-04-29 16:00:00');
 
 -- =====================================================
--- VERIFY ALL TABLES HAVE 15+ ROWS
+-- VERIFY ALL TABLES
 -- =====================================================
+SHOW TABLES;
+
+-- Check counts
 SELECT 'Users' AS TableName, COUNT(*) AS RowCount FROM Users
-UNION
+UNION ALL
 SELECT 'ISBNs', COUNT(*) FROM ISBNs
-UNION
-SELECT 'Users', COUNT(*) FROM Users
-UNION
+UNION ALL
+SELECT 'Books', COUNT(*) FROM Books
+UNION ALL
 SELECT 'BorrowRecords', COUNT(*) FROM BorrowRecords
-UNION
+UNION ALL
 SELECT 'PaymentRecords', COUNT(*) FROM PaymentRecords;

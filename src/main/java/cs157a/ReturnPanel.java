@@ -19,6 +19,9 @@ public class ReturnPanel extends JPanel{
     private JLabel fineAmountLabel;
     private JLabel statusLabel;
 
+    // Add this constant
+    private static final double MAX_FINE_DISPLAY = 50.00;
+
     public ReturnPanel(BorrowRecordDAO borrowRecordDAO, BookDAO bookDAO){
         this.borrowRecordDAO = borrowRecordDAO;
         this.bookDAO = bookDAO;
@@ -196,7 +199,9 @@ public class ReturnPanel extends JPanel{
         LocalDate today = LocalDate.now();
         if(today.isAfter(dueDate)){
             long daysLate = ChronoUnit.DAYS.between(dueDate, today);
-            return daysLate *0.25;
+            double fine = daysLate *.25;
+
+            return Math.min(fine, MAX_FINE_DISPLAY);
         }
         return 0.0;
     }
