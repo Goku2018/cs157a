@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.BorderFactory;
 
 public class SearchBooksPanel extends JPanel {
     private BookDAO bookDAO;
@@ -79,7 +80,7 @@ public class SearchBooksPanel extends JPanel {
 
             //Call backend with try catch
             try{
-                List<Book> results = bookDAO.searchBooks(keyword, searchType);
+                List<Book> results = bookDAO.searchBooks(keyword, searchType.toLowerCase());
 
                 if(results == null || results.isEmpty()){
                     statusLabel.setText("No books found matching '" + keyword + "' in " + searchType);

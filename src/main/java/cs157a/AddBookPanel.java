@@ -90,10 +90,12 @@ public class AddBookPanel extends JPanel{
         gbc.gridy = 6;
         formPanel.add(messageLabel, gbc);
 
+        add(formPanel, BorderLayout.CENTER);
+
         //Event handlers
         addButton.addActionListener(e->addBook());
         clearButton.addActionListener(e->clearForm("Form cleared."));
-        add(formPanel, BorderLayout.CENTER);
+
     }
 
     private void addBook(){

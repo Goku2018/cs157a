@@ -124,16 +124,56 @@ public class BorrowRecordDAO {
 
     // Get all currently borrowed books (ReturnDate IS NULL)
     List<BorrowRecord> getActiveBorrowings(){
-        return getBorrowRecords(null, null, true);
-    }
+        List<BorrowRecord> activeRecords = new ArrayList<>();
+        String sql = "SELECT * FROM BorrowRecords WHERE ReturnDate IS NULL ORDER BY BorrowDate DESC";
 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                activeRecords.add(mapBorrowRecord(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch active borrowings. Database error.", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch active borrowings", e);
+        }
+        return activeRecords;
+    }
+    /*
+    // Get all currently borrowed books (ReturnDate IS NULL)
+    List<BorrowRecord> getActiveBorrowings(){
+        List<BorrowRecord> activeRecords = new ArrayList<>();
+        String sql = "SELECT * FROM BorrowRecords WHERE ReturnDate IS NULL ORDER BY BorrowDate DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()){
+                while(rs.next()){
+                    activeRecords.add(mapBorrowRecord(rs));
+                }
+        } catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch active borrowings. Database error.", e);
+
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to fetch active borrowings.", e);
+
+        }
+        return activeRecords;
+    }
+*/
     // Get borrowing history for a specific user
     List<BorrowRecord> getBorrowingsByUser(int userId){
         return getBorrowRecords(userId, null, false);
     }
 
     List<BorrowRecord> getBorrowRecords(Integer userId, Integer bookId, boolean activeOnly){
-        updateActiveFines();
+        //updateActiveFines();
         List<BorrowRecord> records = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT RecordID, BookID, UserID, BorrowDate, ReturnDate, FineAmount FROM BorrowRecords WHERE 1 = 1");
         List<Integer> params = new ArrayList<>();
@@ -239,7 +279,7 @@ public class BorrowRecordDAO {
     }
 
 
-
+/*
     private BorrowRecord mapBorrowRecord(ResultSet rs) throws SQLException {
         BorrowRecord record = new BorrowRecord();
         record.setRecordId(rs.getLong("RecordID"));
@@ -261,6 +301,29 @@ public class BorrowRecordDAO {
         record.setFineAmount(rs.getDouble("FineAmount"));
         return record;
     }
+    */
+private BorrowRecord mapBorrowRecord(ResultSet rs) throws SQLException {
+    BorrowRecord record = new BorrowRecord();
+    record.setRecordId(rs.getLong("RecordID"));
+    record.setBookId(rs.getInt("BookID"));
+    record.setUserId(rs.getInt("UserID"));
+
+    Timestamp borrowDate = rs.getTimestamp("BorrowDate");
+    Timestamp returnDate = rs.getTimestamp("ReturnDate");
+
+    if (borrowDate != null) {
+        LocalDate borrowLocalDate = borrowDate.toLocalDateTime().toLocalDate();
+        record.setBorrowDate(borrowLocalDate);
+        record.setDueDate(borrowLocalDate.plusDays(14));
+    }
+    if (returnDate != null) {
+        record.setReturnDate(returnDate.toLocalDateTime().toLocalDate());
+    }
+
+    record.setFineAmount(rs.getDouble("FineAmount"));
+    return record;
+}
+
     // Placeholder for getUnpaidFines - returns empty list for now
     // Partner will implement real version with database query
     List<BorrowRecord> getUnpaidFines() {

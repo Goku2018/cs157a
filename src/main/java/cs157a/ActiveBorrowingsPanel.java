@@ -37,6 +37,12 @@ public class ActiveBorrowingsPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
+        addHierarchyListener(e -> {
+            if (isShowing()) {
+                loadActiveBorrowings();
+            }
+        });
+
         // Bottom panel with refresh button (reused from ViewBooksPanel)
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton refreshBtn = new JButton("Refresh");

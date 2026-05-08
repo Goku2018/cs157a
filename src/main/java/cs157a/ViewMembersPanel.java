@@ -23,7 +23,6 @@ public class ViewMembersPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        refreshTable();
         addHierarchyListener(e ->{
             if(isShowing()){
                 refreshTable();

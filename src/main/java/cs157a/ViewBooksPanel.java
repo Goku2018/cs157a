@@ -23,7 +23,6 @@ public class ViewBooksPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        refreshTable();
         addHierarchyListener(e ->{
             if(isShowing()){
                 refreshTable();
@@ -37,8 +36,8 @@ public class ViewBooksPanel extends JPanel {
         bottomPanel.add(refreshBtn);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Load data initially
         refreshTable();
+
     }
     private void refreshTable(){
         tableModel.setRowCount(0); // clear existing rows

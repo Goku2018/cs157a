@@ -5,16 +5,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class LoginFrame extends JFrame{
+public class LoginFrame extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
     private JLabel messageLabel;
 
-
-    //Just for testing
-
-    public LoginFrame(){
-
+    public LoginFrame() {
         setTitle("Library Management System - Login");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -23,9 +19,9 @@ public class LoginFrame extends JFrame{
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15,15,15);
+        gbc.insets = new Insets(15, 15, 15, 15);
 
-        //Email field
+        // Email field
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
@@ -39,7 +35,7 @@ public class LoginFrame extends JFrame{
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(emailField, gbc);
 
-        //Password field
+        // Password field
         gbc.gridx = 0;
         gbc.gridy = 1;
         JLabel passwordLabel = new JLabel("Password:");
@@ -51,7 +47,7 @@ public class LoginFrame extends JFrame{
         gbc.gridx = 1;
         panel.add(passwordField, gbc);
 
-        //Login button
+        // Login button
         JButton loginButton = new JButton("Login");
         loginButton.setFont(new Font("Arial", Font.BOLD, 16));
         loginButton.setPreferredSize(new Dimension(120, 40));
@@ -62,7 +58,7 @@ public class LoginFrame extends JFrame{
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(loginButton, gbc);
 
-        //Message label
+        // Message label
         messageLabel = new JLabel(" ");
         messageLabel.setForeground(Color.RED);
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -71,40 +67,59 @@ public class LoginFrame extends JFrame{
 
         add(panel);
 
-        //Login action
         loginButton.addActionListener(this::authenticate);
         getRootPane().setDefaultButton(loginButton);
-
     }
-    //Authenticate Method
+
     private void authenticate(ActionEvent e) {
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
+        System.out.println("========== LOGIN ATTEMPT ==========");
+        System.out.println("Email entered: " + email);
+        System.out.println("Password entered: " + password);
+
         if (email.isEmpty() || password.isEmpty()) {
             messageLabel.setText("Please fill in both fields.");
+            System.out.println("Login failed: Empty fields");
             return;
         }
 
-        //Accessing database
         try {
+            System.out.println("Calling DatabaseConnection.authenticate...");
             User loggedInUser = DatabaseConnection.authenticate(email, password);
+
+            System.out.println("User found: " + (loggedInUser != null ? "YES" : "NO"));
+
             if (loggedInUser != null) {
+                System.out.println("User Details:");
+                System.out.println("  - UserID: " + loggedInUser.getUserId());
+                System.out.println("  - FullName: " + loggedInUser.getFullName());
+                System.out.println("  - Status: " + loggedInUser.getStatus());
+                System.out.println("  - Email: " + loggedInUser.getEmail());
+
                 String dashboardRole = loggedInUser.getStatus().equalsIgnoreCase("Staff") ? "staff" : "member";
+                System.out.println("Dashboard role: " + dashboardRole);
+                System.out.println("Creating MainDashboard...");
+
                 messageLabel.setText("Login Successful (" + loggedInUser.getStatus() + ")");
-                new MainDashboard(dashboardRole, loggedInUser.getUserId()).setVisible(true);
+                new MainDashboard(dashboardRole, loggedInUser.getEmail()).setVisible(true);
+                System.out.println("MainDashboard created, disposing LoginFrame...");
                 dispose();
             } else {
-                messageLabel.setText("Invalid email or password.  Try again");
+                System.out.println("Login failed: User not found or password incorrect");
+                messageLabel.setText("Invalid email or password. Try again");
                 passwordField.setText("");
             }
         } catch (Exception ex) {
-            messageLabel.setText("Database error: " + ex.getMessage());
+            System.out.println("EXCEPTION during login:");
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Unable to connect to database. \n Please check you connection.", "Error", JOptionPane.ERROR_MESSAGE);
+            messageLabel.setText("Database error: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Unable to connect to database.\nError: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
+        System.out.println("========== END LOGIN ATTEMPT ==========\n");
     }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }

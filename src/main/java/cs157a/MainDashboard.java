@@ -5,40 +5,43 @@ import java.awt.*;
 
 public class MainDashboard extends JFrame {
     private String userRole;
-    private int loggedInUserId;
+    private String userEmail;
     private CardLayout cardLayout;
     private JPanel contentPanel;
-
-    //Backend Database Operations
 
     private BookDAO bookDAO;
     private UserDAO userDAO;
     private BorrowRecordDAO borrowRecordDAO;
     private PaymentDAO paymentDAO;
 
-    public MainDashboard(String role, int loggedInUserId) {
-        this.userRole = role;
-        this.loggedInUserId = loggedInUserId;
+    public MainDashboard(String role, String email) {
+        System.out.println("========== MAIN DASHBOARD CREATED ==========");
+        System.out.println("Role: " + role);
+        System.out.println("Email: " + email);
 
-        //Instantiate DAOs(Placeholder implementations)
+        this.userRole = role;
+        this.userEmail = email;
+
         bookDAO = new BookDAO();
         userDAO = new UserDAO();
         borrowRecordDAO = new BorrowRecordDAO();
         paymentDAO = new PaymentDAO();
+
+        System.out.println("DAOs instantiated successfully");
 
         setTitle("Library Management System - Dashboard (" + role + ")");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        //Menu Bar
+        // Menu Bar
         JMenuBar menuBar = new JMenuBar();
 
-        //Books Menu
+        // Books Menu
         JMenu booksMenu = new JMenu("Books");
         addMenuItem(booksMenu, "View All Books", "ViewBooks");
         addMenuItem(booksMenu, "Search Books", "SearchBooks");
-        if(role.equalsIgnoreCase("staff")){
+        if (role.equalsIgnoreCase("staff")) {
             booksMenu.addSeparator();
             addMenuItem(booksMenu, "Add New Book", "AddBook");
             addMenuItem(booksMenu, "Update Book", "UpdateBook");
@@ -46,67 +49,63 @@ public class MainDashboard extends JFrame {
         }
         menuBar.add(booksMenu);
 
-        //Members Menu
+        // Members Menu
         JMenu membersMenu = new JMenu("Members");
-        if(role.equalsIgnoreCase("staff")){
+        if (role.equalsIgnoreCase("staff")) {
             addMenuItem(membersMenu, "View All Members", "ViewMembers");
             addMenuItem(membersMenu, "Register Member", "RegisterMember");
             addMenuItem(membersMenu, "Update Member", "UpdateMember");
             addMenuItem(membersMenu, "Delete Member", "DeleteMember");
-        }else{
+        } else {
             addMenuItem(membersMenu, "My Profile", "MyProfile");
         }
         menuBar.add(membersMenu);
 
-        //Borrowing Menu
+        // Borrowing Menu
         JMenu borrowMenu = new JMenu("Borrowing");
-        if(role.equalsIgnoreCase("staff")){
+        if (role.equalsIgnoreCase("staff")) {
             addMenuItem(borrowMenu, "Check Out Book", "Checkout");
             addMenuItem(borrowMenu, "Return Book", "Return");
             addMenuItem(borrowMenu, "Active Borrowings", "ActiveBorrowings");
             addMenuItem(borrowMenu, "Borrow Records", "BorrowRecords");
-
-        }else{
+        } else {
             addMenuItem(borrowMenu, "My Borrowings", "MyBorrowings");
         }
         menuBar.add(borrowMenu);
 
-        //Payments Menu
+        // Payments Menu
         JMenu paymentsMenu = new JMenu("Payments");
-        if(role.equalsIgnoreCase("staff")){
+        if (role.equalsIgnoreCase("staff")) {
             addMenuItem(paymentsMenu, "Process Fine Payment", "ProcessPayment");
             addMenuItem(paymentsMenu, "View Unpaid Fines", "UnpaidFines");
             addMenuItem(paymentsMenu, "Payment History", "PaymentHistory");
-
-        }else{
+        } else {
             addMenuItem(paymentsMenu, "My Fines", "MyFines");
         }
         menuBar.add(paymentsMenu);
 
-        //Account Menu
+        // Account Menu
         JMenu accountMenu = new JMenu("Account");
         JMenuItem logoutItem = new JMenuItem("Logout");
-
         logoutItem.addActionListener(e -> logout());
         accountMenu.add(logoutItem);
         menuBar.add(accountMenu);
 
         setJMenuBar(menuBar);
 
-        //Card Layout for Content Panels
+        // Card Layout
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
-
         contentPanel.add(createWelcomePanel(), "Welcome");
 
-        // Add real panels (pass DAOs they need)
+        // Add real panels
         contentPanel.add(new ViewBooksPanel(bookDAO), "ViewBooks");
         contentPanel.add(new SearchBooksPanel(bookDAO), "SearchBooks");
         contentPanel.add(new AddBookPanel(bookDAO), "AddBook");
         contentPanel.add(new UpdateBookPanel(bookDAO), "UpdateBook");
         contentPanel.add(new DeleteBookPanel(bookDAO), "DeleteBook");
         contentPanel.add(new RegisterMemberPanel(userDAO), "RegisterMember");
-        contentPanel.add(new ViewMembersPanel(userDAO),"ViewMembers");
+        contentPanel.add(new ViewMembersPanel(userDAO), "ViewMembers");
         contentPanel.add(new UpdateMemberPanel(userDAO), "UpdateMember");
         contentPanel.add(new DeleteMemberPanel(userDAO), "DeleteMember");
         contentPanel.add(new CheckoutPanel(borrowRecordDAO, bookDAO, userDAO), "Checkout");
@@ -117,19 +116,30 @@ public class MainDashboard extends JFrame {
         contentPanel.add(new ViewUnpaidFinesPanel(borrowRecordDAO, bookDAO, userDAO, paymentDAO), "UnpaidFines");
         contentPanel.add(new PaymentHistoryPanel(paymentDAO, userDAO), "PaymentHistory");
 
-        // Placeholder panels for other features
-        // Placeholder panels for other features
+        // MyProfile - only for members
+        if (role.equalsIgnoreCase("member")) {
+            System.out.println("Creating MyProfilePanel for member: " + userEmail);
+            try {
+                contentPanel.add(new MyProfilePanel(userDAO, userEmail), "MyProfile");
+                System.out.println("MyProfilePanel created successfully");
+            } catch (Exception ex) {
+                System.out.println("ERROR creating MyProfilePanel:");
+                ex.printStackTrace();
+                contentPanel.add(createPlaceholderPanel("My Profile - Error Loading"), "MyProfile");
+            }
+        } else {
+            contentPanel.add(createPlaceholderPanel("My Profile - Staff View (Coming Soon)"), "MyProfile");
+        }
 
-        contentPanel.add(createPlaceholderPanel("My Profile - Coming Soon"), "MyProfile");
+        // Placeholder panels
         contentPanel.add(createPlaceholderPanel("My Borrowings - Coming Soon"), "MyBorrowings");
-        //contentPanel.add(createPlaceholderPanel("Process Fine Payment - Coming Soon"), "ProcessPayment");
-        //contentPanel.add(createPlaceholderPanel("View Unpaid Fines - Coming Soon"), "UnpaidFines");
         contentPanel.add(createPlaceholderPanel("My Fines - Coming Soon"), "MyFines");
 
         add(contentPanel);
-
-        // Show default panel
         cardLayout.show(contentPanel, "Welcome");
+
+        System.out.println("MainDashboard initialization complete");
+        System.out.println("=======================================\n");
     }
 
     private void addMenuItem(JMenu menu, String title, String panelName) {
@@ -156,8 +166,8 @@ public class MainDashboard extends JFrame {
             new LoginFrame().setVisible(true);
         }
     }
-    //Blank page
-    private JPanel createWelcomePanel(){
+
+    private JPanel createWelcomePanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.WHITE);
 
