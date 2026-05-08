@@ -4,14 +4,14 @@ import javax.swing.*;
 //import javax.swing.border.BorderFactory;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 public class ProcessPaymentPanel extends JPanel{
     private PaymentDAO paymentDAO;
     private BorrowRecordDAO borrowRecordDAO;
 
     //Form fields
-    private JTextField borrowRecordIdField;
+    private JTextField userIdField;
     private JTextField amountField;
     private JLabel statusLabel;
 
@@ -28,25 +28,25 @@ public class ProcessPaymentPanel extends JPanel{
         gbc.insets = new Insets(8,8,8,8);
         gbc.anchor = GridBagConstraints.WEST;
 
-        //Row 0 Borrow Record ID
+        //Row 0 User ID
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(new JLabel("Borrow Record ID: "), gbc);
-        borrowRecordIdField = new JTextField(20);
+        formPanel.add(new JLabel("User ID: "), gbc);
+        userIdField = new JTextField(20);
         gbc.gridx = 1;
-        formPanel.add(borrowRecordIdField, gbc);
+        formPanel.add(userIdField, gbc);
 
-        JButton lookupButton = new JButton("Check Fine");
+        JButton lookupButton = new JButton("Check Balance");
         gbc.gridx = 2;
         formPanel.add(lookupButton, gbc);
 
-        //Row 1 Fine Amount
+        //Row 1 Payment Amount
         gbc.gridx = 0;
         gbc.gridy = 1;
-        formPanel.add(new JLabel("Fine Amount: "), gbc);
+        formPanel.add(new JLabel("Payment Amount: "), gbc);
         amountField = new JTextField(20);
-        amountField.setEditable(false);
-        amountField.setBackground(Color.LIGHT_GRAY);
+        amountField.setEditable(true);
+        amountField.setBackground(Color.WHITE);
         gbc.gridx = 1;
         formPanel.add(amountField, gbc);
 
@@ -78,18 +78,18 @@ public class ProcessPaymentPanel extends JPanel{
 
     }
     private void checkFine() {
-        String recordIdStr = borrowRecordIdField.getText().trim();
-        if (recordIdStr.isEmpty()) {
-            statusLabel.setText("Please enter a Borrow Record ID.");
+        String userIdStr = userIdField.getText().trim();
+        if (userIdStr.isEmpty()) {
+            statusLabel.setText("Please enter a User ID.");
             statusLabel.setForeground(Color.RED);
             return;
         }
         try {
-            long recordId = Long.parseLong(recordIdStr);
-            double fine = borrowRecordDAO.calculateFine(recordId);
-            if (fine > 0) {
-                amountField.setText(String.format("$%.2f", fine));
-                statusLabel.setText("Fine amount: $" + String.format("%.2f", fine));
+            int userId = Integer.parseInt(userIdStr);
+            double amountOwed = getAmountOwedForUser(userId);
+            if (amountOwed > 0) {
+                amountField.setText(String.format("$%.2f", amountOwed));
+                statusLabel.setText("Amount owed: $" + String.format("%.2f", amountOwed) + ". Edit amount for a partial payment.");
                 statusLabel.setForeground(Color.BLUE);
             } else {
                 amountField.setText("$0.00");
@@ -97,28 +97,47 @@ public class ProcessPaymentPanel extends JPanel{
                 statusLabel.setForeground(Color.GREEN);
             }
         } catch (NumberFormatException ex) {
-            statusLabel.setText("Invalid Record ID. Please enter a number");
+            statusLabel.setText("Invalid User ID. Please enter a number");
             statusLabel.setForeground(Color.RED);
             ex.printStackTrace();
         }
     }
     private void processPayment(){
-        String recordIdStr = borrowRecordIdField.getText().trim();
+        String userIdStr = userIdField.getText().trim();
         String amountStr = amountField.getText().trim();
 
-        if(recordIdStr.isEmpty()){
-            statusLabel.setText("Please enter a Borrow Record ID.");
+        if(userIdStr.isEmpty()){
+            statusLabel.setText("Please enter a User ID.");
             statusLabel.setForeground(Color.RED);
             return;
         }
         try{
-            long recordId = Long.parseLong(recordIdStr);
+            int userId = Integer.parseInt(userIdStr);
             //Remove $ if present
             if(amountStr.startsWith("$")){
                 amountStr = amountStr.substring(1);
             }
+            if(amountStr.isEmpty()){
+                amountStr = String.format("%.2f", getAmountOwedForUser(userId));
+            }
             double amount = Double.parseDouble(amountStr);
-            boolean success = paymentDAO.recordPayment(recordId, amount, LocalDate.now());
+            double amountOwed = getAmountOwedForUser(userId);
+            if(amount <= 0){
+                statusLabel.setText("Payment amount must be greater than $0.00.");
+                statusLabel.setForeground(Color.RED);
+                return;
+            }
+            if(amountOwed <= 0){
+                statusLabel.setText("No outstanding fine.");
+                statusLabel.setForeground(Color.GREEN);
+                return;
+            }
+            if(amount > amountOwed){
+                statusLabel.setText("Payment cannot exceed amount owed: $" + String.format("%.2f", amountOwed));
+                statusLabel.setForeground(Color.RED);
+                return;
+            }
+            boolean success = paymentDAO.recordPaymentForUser(userId, amount, LocalDate.now());
             if(success){
                 statusLabel.setText("Payment of $" + String.format("%.2f ", amount) + " recorded successfully..");
                 statusLabel.setForeground(Color.GREEN);
@@ -135,11 +154,17 @@ public class ProcessPaymentPanel extends JPanel{
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    private double getAmountOwedForUser(int userId) {
+        Map<Integer, Double> fineTotalsByUser = borrowRecordDAO.getFineTotalsByUser();
+        double totalFines = fineTotalsByUser.getOrDefault(userId, 0.0);
+        double totalPaid = paymentDAO.getTotalPaidForUser(userId);
+        return totalFines - totalPaid;
+    }
+
     private void clearForm(){
-        borrowRecordIdField.setText("");
+        userIdField.setText("");
         amountField.setText("");
         statusLabel.setText("Form cleared.");
         statusLabel.setForeground(Color.BLUE);
     }
 }
-

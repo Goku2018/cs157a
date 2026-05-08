@@ -1,4 +1,13 @@
+<<<<<<< HEAD:src/main/resources/sql tables.txt
 USE librarydb;
+=======
+--to run this file: mysql -u <user> -p <your database name> < create_schema.sql
+
+-- =====================================================
+-- USE YOUR DATABASE
+-- =====================================================
+-- USE <your database name>
+>>>>>>> 502e65c0f9102f735f8b0337347bbd25f04570ab:src/main/resources/create_schema.sql
 
 -- =====================================================
 -- DROP EXISTING TABLES (in correct order due to foreign keys)
@@ -12,21 +21,21 @@ DROP TABLE IF EXISTS Users;
 -- =====================================================
 -- TABLE 1: USERS
 -- =====================================================
-CREATE TABLE Users (
-  UserID INT unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE Users
+(
+  UserID INT unsigned AUTO_INCREMENT,
   FullName VARCHAR(150) NOT NULL,
-  Password VARCHAR(100) NOT NULL,
+  Password VARCHAR(30) NOT NULL,
   Status VARCHAR(30) NOT NULL,
-  Email VARCHAR(150) DEFAULT NULL,
-  Phone VARCHAR(20) DEFAULT NULL,
-  Address VARCHAR(150) DEFAULT NULL,
+  Email VARCHAR(150),
+  Phone VARCHAR(20),
+  Address VARCHAR(150),
   RegistrationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (UserID)
 );
 
+
 INSERT INTO Users (FullName, Password, Status, Email, Phone, Address) VALUES
-('admin', 'pass123', 'Staff', 'admin@library.com', '000-0001', '1 Main St, San Jose, CA'),
-('member', 'pass123', 'Member', 'member@library.com', '000-0002', '2 Main St, San Jose, CA'),
 ('John Smith', 'pass123', 'Member', 'john.smith@sjsu.edu', '555-0101', '123 Main St, San Jose, CA'),
 ('Jane Doe', 'pass456', 'Member', 'jane.doe@sjsu.edu', '555-0102', '456 Oak Ave, Santa Clara, CA'),
 ('Bob Johnson', 'pass789', 'Member', 'bob.johnson@sjsu.edu', '555-0103', '789 Pine Rd, Cupertino, CA'),
@@ -46,13 +55,15 @@ INSERT INTO Users (FullName, Password, Status, Email, Phone, Address) VALUES
 -- =====================================================
 -- TABLE 2: ISBNS
 -- =====================================================
-CREATE TABLE ISBNs (
-  ISBN VARCHAR(13) NOT NULL,
-  Title VARCHAR(150) DEFAULT NULL,
-  Author VARCHAR(150) DEFAULT NULL,
-  Genre VARCHAR(30) DEFAULT NULL,
+CREATE TABLE ISBNs
+(
+  ISBN VARCHAR(13),
+  Title VARCHAR(150),
+  Author VARCHAR(150),
+  Genre VARCHAR(30),
   PRIMARY KEY (ISBN)
 );
+
 
 INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES
 ('9780743273565', 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction'),
@@ -74,6 +85,7 @@ INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES
 -- =====================================================
 -- TABLE 3: BOOKS (FIXED)
 -- =====================================================
+<<<<<<< HEAD:src/main/resources/sql tables.txt
 CREATE TABLE Books (
   BookID INT unsigned NOT NULL AUTO_INCREMENT,
   ISBN VARCHAR(13) DEFAULT NULL,
@@ -83,6 +95,18 @@ CREATE TABLE Books (
   CONSTRAINT fk_books_isbn FOREIGN KEY (ISBN) REFERENCES ISBNs (ISBN)
 );
 
+=======
+CREATE TABLE Books
+(
+  BookID INT unsigned AUTO_INCREMENT,
+  ISBN VARCHAR(13),
+  CONSTRAINT isbn FOREIGN KEY (ISBN) REFERENCES ISBNs(ISBN) ON UPDATE CASCADE,
+  Status VARCHAR(100) NOT NULL,
+  PRIMARY KEY (BookID)
+);
+
+
+>>>>>>> 502e65c0f9102f735f8b0337347bbd25f04570ab:src/main/resources/create_schema.sql
 INSERT INTO Books (ISBN, Status) VALUES
 ('9780743273565', 'Available'),
 ('9780061120084', 'Borrowed'),
@@ -103,6 +127,7 @@ INSERT INTO Books (ISBN, Status) VALUES
 -- =====================================================
 -- TABLE 4: BORROWRECORDS (FIXED)
 -- =====================================================
+<<<<<<< HEAD:src/main/resources/sql tables.txt
 CREATE TABLE BorrowRecords (
   RecordID BIGINT unsigned NOT NULL AUTO_INCREMENT,
   BookID INT unsigned DEFAULT NULL,
@@ -134,10 +159,43 @@ INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, DueDate, ReturnDate, Fine
 (13, 12, '2025-04-13 10:00:00', '2025-04-27 10:00:00', NULL, 0.00),
 (14, 13, '2025-04-14 11:00:00', '2025-04-28 11:00:00', '2025-04-29 11:00:00', 0.25),
 (15, 15, '2025-04-15 12:00:00', '2025-04-29 12:00:00', NULL, 0.00);
+=======
+CREATE TABLE BorrowRecords
+(
+  RecordID BIGINT unsigned AUTO_INCREMENT,
+  BookID INT unsigned,
+  CONSTRAINT bookid FOREIGN KEY (BookID) REFERENCES Books(BookID) ON UPDATE CASCADE ON DELETE SET NULL,
+  UserID INT unsigned,
+  CONSTRAINT userid FOREIGN KEY (UserID) REFERENCES Users(UserID) ON UPDATE CASCADE ON DELETE SET NULL,
+  BorrowDate DATETIME,
+  ReturnDate DATETIME,
+  FineAmount DECIMAL(5,2),
+  PRIMARY KEY (RecordID)
+);
+
+
+INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, ReturnDate, FineAmount) VALUES
+(2, 1, '2025-04-01 10:00:00', '2025-04-14 10:00:00', 0.00),
+(5, 2, '2025-04-02 11:00:00', '2025-04-17 11:00:00', 0.25),
+(8, 3, '2025-04-03 12:00:00', NULL, 0.00),
+(11, 4, '2025-04-04 13:00:00', '2025-04-17 13:00:00', 0.00),
+(14, 5, '2025-04-05 14:00:00', NULL, 0.00),
+(1, 6, '2025-04-06 09:00:00', '2025-04-21 09:00:00', 0.25),
+(3, 7, '2025-04-07 10:00:00', '2025-04-20 10:00:00', 0.00),
+(4, 8, '2025-04-08 11:00:00', NULL, 0.00),
+(6, 9, '2025-04-09 12:00:00', '2025-04-22 12:00:00', 0.00),
+(7, 10, '2025-04-10 13:00:00', NULL, 0.00),
+(9, 1, '2025-04-11 14:00:00', NULL, 0.00),
+(10, 2, '2025-04-12 09:00:00', '2025-04-25 09:00:00', 0.00),
+(12, 3, '2025-04-13 10:00:00', NULL, 0.00),
+(13, 4, '2025-04-14 11:00:00', '2025-04-29 11:00:00', 0.25),
+(15, 5, '2025-04-15 12:00:00', NULL, 0.00);
+>>>>>>> 502e65c0f9102f735f8b0337347bbd25f04570ab:src/main/resources/create_schema.sql
 
 -- =====================================================
 -- TABLE 5: PAYMENTRECORDS
 -- =====================================================
+<<<<<<< HEAD:src/main/resources/sql tables.txt
 CREATE TABLE PaymentRecords (
   PaymentID BIGINT unsigned NOT NULL AUTO_INCREMENT,
   BorrowRecordID BIGINT unsigned NOT NULL,
@@ -146,9 +204,20 @@ CREATE TABLE PaymentRecords (
   PRIMARY KEY (PaymentID),
   KEY idx_borrowrecord (BorrowRecordID),
   CONSTRAINT fk_payment_borrowrecord FOREIGN KEY (BorrowRecordID) REFERENCES BorrowRecords (RecordID)
+=======
+CREATE TABLE PaymentRecords
+(
+  PaymentID BIGINT unsigned AUTO_INCREMENT,
+  UserID INT unsigned,
+  CONSTRAINT useridpr FOREIGN KEY (UserID) REFERENCES Users(UserID) ON UPDATE CASCADE ON DELETE SET NULL,
+  PaymentAmount DECIMAL(6,2),
+  PaymentDate DATETIME,
+  PRIMARY KEY (PaymentID)
+>>>>>>> 502e65c0f9102f735f8b0337347bbd25f04570ab:src/main/resources/create_schema.sql
 );
 
-INSERT INTO PaymentRecords (BorrowRecordID, PaymentAmount, PaymentDate) VALUES
+
+INSERT INTO PaymentRecords (UserID, PaymentAmount, PaymentDate) VALUES
 (2, 0.25, '2025-04-17 15:00:00'),
 (6, 0.25, '2025-04-21 14:00:00'),
 (14, 0.25, '2025-04-29 16:00:00');
@@ -162,9 +231,15 @@ SHOW TABLES;
 SELECT 'Users' AS TableName, COUNT(*) AS RowCount FROM Users
 UNION ALL
 SELECT 'ISBNs', COUNT(*) FROM ISBNs
+<<<<<<< HEAD:src/main/resources/sql tables.txt
 UNION ALL
 SELECT 'Books', COUNT(*) FROM Books
 UNION ALL
+=======
+UNION
+SELECT 'Books', COUNT(*) FROM Books
+UNION
+>>>>>>> 502e65c0f9102f735f8b0337347bbd25f04570ab:src/main/resources/create_schema.sql
 SELECT 'BorrowRecords', COUNT(*) FROM BorrowRecords
 UNION ALL
 SELECT 'PaymentRecords', COUNT(*) FROM PaymentRecords;

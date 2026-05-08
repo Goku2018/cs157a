@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.BorderFactory;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 
 public class CheckoutPanel extends JPanel {
     private BorrowRecordDAO borrowRecordDAO;
@@ -15,7 +13,6 @@ public class CheckoutPanel extends JPanel {
     // Form fields
     private JTextField memberEmailField;
     private JTextField bookIdField;
-    private JSpinner dueDateSpinner;
     private JLabel memberNameLabel;
     private JLabel bookTitleLabel;
     private JLabel bookStatusLabel;
@@ -90,39 +87,23 @@ public class CheckoutPanel extends JPanel {
         gbc.gridx = 1;
         formPanel.add(bookStatusLabel, gbc);
 
-        // Row 5: Due Date Spinner (reused from ReturnPanel)
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        formPanel.add(new JLabel("Due Date:"), gbc);
-
-        LocalDate defaultDueDate = LocalDate.now().plusDays(14);
-        Date defaultDate = Date.from(defaultDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        SpinnerDateModel dateModel = new SpinnerDateModel(defaultDate, null, null, java.util.Calendar.DAY_OF_MONTH);
-        dueDateSpinner = new JSpinner(dateModel);
-        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dueDateSpinner, "yyyy-MM-dd");
-        dueDateSpinner.setEditor(dateEditor);
-        gbc.gridx = 1;
-        formPanel.add(dueDateSpinner, gbc);
-
-        // Row 6: Buttons
+        // Row 5: Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton checkoutBtn = new JButton("Check Out Book");
-        checkoutBtn.setBackground(new Color(40, 167, 69));
-        checkoutBtn.setForeground(Color.WHITE);
         JButton clearBtn = new JButton("Clear");
         buttonPanel.add(checkoutBtn);
         buttonPanel.add(clearBtn);
 
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 5;
         gbc.gridwidth = 3;
         gbc.anchor = GridBagConstraints.CENTER;
         formPanel.add(buttonPanel, gbc);
 
-        // Row 7: Status Label (reused from ProcessPaymentPanel)
+        // Row 6: Status Label (reused from ProcessPaymentPanel)
         statusLabel = new JLabel(" ");
         statusLabel.setForeground(Color.BLUE);
-        gbc.gridy = 7;
+        gbc.gridy = 6;
         formPanel.add(statusLabel, gbc);
 
         add(formPanel, BorderLayout.CENTER);
@@ -224,10 +205,9 @@ public class CheckoutPanel extends JPanel {
         try {
             User user = userDAO.getUserByEmail(email);
             int bookId = Integer.parseInt(bookIdStr);
-            Date dueDateUtil = (Date) dueDateSpinner.getValue();
-            LocalDate dueDate = dueDateUtil.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate dueDate = LocalDate.now().plusDays(14);
 
-            boolean success = borrowRecordDAO.checkoutBook(bookId, user.getUserId(), dueDate);
+            boolean success = borrowRecordDAO.checkoutBook(bookId, user.getUserId());
 
             if (success) {
                 statusLabel.setText("Book checked out successfully!");
@@ -260,10 +240,6 @@ public class CheckoutPanel extends JPanel {
         memberNameLabel.setText(" ");
         bookTitleLabel.setText(" ");
         bookStatusLabel.setText(" ");
-        // Reset due date
-        LocalDate defaultDueDate = LocalDate.now().plusDays(14);
-        Date defaultDate = Date.from(defaultDueDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        dueDateSpinner.setValue(defaultDate);
         statusLabel.setText("Form cleared.");
         statusLabel.setForeground(Color.BLUE);
     }
