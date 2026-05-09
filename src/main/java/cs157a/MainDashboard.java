@@ -3,6 +3,11 @@ package cs157a;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Main dashboard window for the Library Management System.
+ * Provides a menu-driven interface with CardLayout for switching between panels.
+ * Accessible features depend on user role (staff or member).
+ */
 public class MainDashboard extends JFrame {
     private String userRole;
     private String userEmail;
@@ -14,19 +19,22 @@ public class MainDashboard extends JFrame {
     private BorrowRecordDAO borrowRecordDAO;
     private PaymentDAO paymentDAO;
 
+    /**
+     * Constructor - initializes the dashboard with role-specific panels.
+     * @param role User role ("staff" or "member")
+     * @param email User's email address
+     * @param loggedInUserId User's unique identifier
+     */
     public MainDashboard(String role, String email, int loggedInUserId) {
-
-
         this.userRole = role;
         this.userEmail = email;
         this.loggedInUserId = loggedInUserId;
 
+        // Initialize Data Access Objects
         bookDAO = new BookDAO();
         userDAO = new UserDAO();
         borrowRecordDAO = new BorrowRecordDAO();
         paymentDAO = new PaymentDAO();
-
-        System.out.println("DAOs instantiated successfully");
 
         setTitle("Library Management System - Dashboard (" + role + ")");
         setSize(1000, 700);
@@ -97,7 +105,7 @@ public class MainDashboard extends JFrame {
         contentPanel = new JPanel(cardLayout);
         contentPanel.add(createWelcomePanel(), "Welcome");
 
-        // Add real panels
+        //Staff panels
         contentPanel.add(new ViewBooksPanel(bookDAO), "ViewBooks");
         contentPanel.add(new SearchBooksPanel(bookDAO), "SearchBooks");
         contentPanel.add(new AddBookPanel(bookDAO), "AddBook");
@@ -115,29 +123,38 @@ public class MainDashboard extends JFrame {
         contentPanel.add(new ViewUnpaidFinesPanel(borrowRecordDAO, bookDAO, userDAO, paymentDAO), "UnpaidFines");
         contentPanel.add(new PaymentHistoryPanel(paymentDAO, userDAO), "PaymentHistory");
 
+        // Member-specific panels (only visible to members)
         if (role.equalsIgnoreCase("member")) {
             contentPanel.add(new MyProfilePanel(userDAO, userEmail), "MyProfile");
             contentPanel.add(new MyBorrowingsPanel(borrowRecordDAO, bookDAO, userDAO, loggedInUserId), "MyBorrowings");
             contentPanel.add(new MyFinesPanel(borrowRecordDAO, bookDAO, paymentDAO, loggedInUserId), "MyFines");
         } else {
+            // Placeholder panels for staff (these features are for members only)
             contentPanel.add(createPlaceholderPanel("My Profile - Staff View (Coming Soon)"), "MyProfile");
             contentPanel.add(createPlaceholderPanel("My Borrowings - Coming Soon"), "MyBorrowings");
             contentPanel.add(createPlaceholderPanel("My Fines - Coming Soon"), "MyFines");
         }
-
         add(contentPanel);
         cardLayout.show(contentPanel, "Welcome");
-
-        System.out.println("MainDashboard initialization complete");
-        System.out.println("=======================================\n");
     }
 
+    /**
+     * Helper method to add a menu item that switches to a specific panel.
+     * @param menu The menu to add the item to
+     * @param title The menu item text
+     * @param panelName The name of the panel in CardLayout
+     */
     private void addMenuItem(JMenu menu, String title, String panelName) {
         JMenuItem item = new JMenuItem(title);
         item.addActionListener(e -> cardLayout.show(contentPanel, panelName));
         menu.add(item);
     }
 
+    /**
+     * Creates a placeholder panel for features not yet implemented.
+     * @param message The message to display
+     * @return A JPanel with a centered gray message
+     */
     private JPanel createPlaceholderPanel(String message) {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel(message, SwingConstants.CENTER);
@@ -147,6 +164,10 @@ public class MainDashboard extends JFrame {
         return panel;
     }
 
+    /**
+     * Logs out the current user and returns to the login screen.
+     * Shows a confirmation dialog before logging out.
+     */
     private void logout() {
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Are you sure you want to logout?", "Logout",
@@ -157,6 +178,10 @@ public class MainDashboard extends JFrame {
         }
     }
 
+    /**
+     * Creates the welcome panel displayed when the dashboard first loads.
+     * @return A JPanel with title and subtitle
+     */
     private JPanel createWelcomePanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.WHITE);
