@@ -5,6 +5,10 @@ import javax.swing.BorderFactory;
 import java.awt.*;
 import java.time.LocalDateTime;
 
+/**
+ * Panel for staff to update existing member information.
+ * Allows lookup by User ID, edit fields, and update the database.
+ */
 public class UpdateMemberPanel extends JPanel {
     private UserDAO userDAO;
 
@@ -117,6 +121,9 @@ public class UpdateMemberPanel extends JPanel {
         clearButton.addActionListener(e -> clearForm());
     }
 
+    /**
+     * Looks up a member by User ID and populates the form fields.
+     */
     private void lookupMember() {
         String userIdStr = userIdField.getText().trim();
         if (userIdStr.isEmpty()) {
@@ -157,6 +164,10 @@ public class UpdateMemberPanel extends JPanel {
         }
     }
 
+    /**
+     * Updates the member's information with the entered values.
+     * Validates input before sending to the database.
+     */
     private void updateMember() {
         String userIdStr = userIdField.getText().trim();
         if (userIdStr.isEmpty()) {
@@ -221,6 +232,9 @@ public class UpdateMemberPanel extends JPanel {
         }
     }
 
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm() {
         userIdField.setText("");
         fullNameField.setText("");

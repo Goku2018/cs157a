@@ -6,6 +6,11 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.Map;
 
+/**
+ * Panel for staff to view all members with unpaid fines.
+ * Shows member ID, name, total fines, total paid, and amount owed.
+ * Allows staff to pay the full outstanding balance for a selected member.
+ */
 public class ViewUnpaidFinesPanel extends JPanel {
     private BorrowRecordDAO borrowRecordDAO;
     private BookDAO bookDAO;
@@ -58,6 +63,11 @@ public class ViewUnpaidFinesPanel extends JPanel {
         loadUnpaidFines();
     }
 
+    /**
+     * Loads all members with unpaid fines from the database.
+     * Calculates amount owed by subtracting total paid from total fines.
+     * Displays only members with amount owed > 0.
+     */
     private void loadUnpaidFines() {
         tableModel.setRowCount(0); // Clear existing rows (reused from ViewBooksPanel)
         statusLabel.setText("Loading unpaid fines...");
@@ -106,6 +116,10 @@ public class ViewUnpaidFinesPanel extends JPanel {
         }
     }
 
+    /**
+     * Pays the full outstanding fine for the selected member.
+     * Requires confirmation before recording the payment.
+     */
     private void paySelectedFine() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {

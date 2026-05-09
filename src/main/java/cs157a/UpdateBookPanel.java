@@ -2,7 +2,12 @@ package cs157a;
 
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.BorderFactory;
 
+/**
+ * Panel for staff to update existing book information.
+ * Allows lookup by Book ID, edit fields, and update the database.
+ */
 public class UpdateBookPanel extends JPanel {
     private BookDAO bookDAO;
     private JTextField bookIdField;
@@ -105,6 +110,9 @@ public class UpdateBookPanel extends JPanel {
         bookIdField.addActionListener(e -> loadBook());
     }
 
+    /**
+     * Loads a book by ID and populates the form fields.
+     */
     private void loadBook() {
         Integer bookId = readBookId();
         if(bookId == null){
@@ -135,6 +143,10 @@ public class UpdateBookPanel extends JPanel {
         }
     }
 
+    /**
+     * Updates the book's information with the entered values.
+     * Validates input before sending to the database.
+     */
     private void updateBook() {
         Integer bookId = readBookId();
         if(bookId == null){
@@ -173,6 +185,10 @@ public class UpdateBookPanel extends JPanel {
         }
     }
 
+    /**
+     * Reads and validates the Book ID from the text field.
+     * @return Book ID as Integer, or null if invalid
+     */
     private Integer readBookId() {
         String value = bookIdField.getText().trim();
         if(value.isEmpty()){
@@ -190,6 +206,9 @@ public class UpdateBookPanel extends JPanel {
         }
     }
 
+    /**
+     * Clears the book detail fields.
+     */
     private void clearBookFields() {
         titleField.setText("");
         authorField.setText("");
@@ -198,6 +217,9 @@ public class UpdateBookPanel extends JPanel {
         statusCombo.setSelectedIndex(0);
     }
 
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm() {
         bookIdField.setText("");
         clearBookFields();

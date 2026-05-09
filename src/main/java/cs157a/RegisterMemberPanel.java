@@ -5,6 +5,10 @@ import javax.swing.BorderFactory;
 import java.awt.*;
 import java.time.LocalDateTime;
 
+/**
+ * Panel for staff to register new members in the library system.
+ * Collects member information and creates a User record with status "Member".
+ */
 public class RegisterMemberPanel extends JPanel {
     private UserDAO userDAO;
 
@@ -89,10 +93,15 @@ public class RegisterMemberPanel extends JPanel {
         add(formPanel, BorderLayout.CENTER);
 
         //Event handlers
-        registerButton.addActionListener(e-> registerMember());
+        registerButton.addActionListener(e -> registerMember());
         clearButton.addActionListener(e -> clearForm());
 
     }
+
+    /**
+     * Registers a new member with the entered information.
+     * Validates input, creates a User object, and calls the DAO to insert into database.
+     */
     private void registerMember(){
         String fullName = fullNameField.getText().trim();
         String email = emailField.getText().trim();
@@ -135,6 +144,10 @@ public class RegisterMemberPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm(){
         fullNameField.setText("");
         emailField.setText("");

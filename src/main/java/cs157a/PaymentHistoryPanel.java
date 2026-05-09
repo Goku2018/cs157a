@@ -5,7 +5,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.BorderFactory;
 
+/**
+ * Panel for staff to view payment history for a specific user.
+ * Allows lookup by User ID, displays all payments with total amount paid.
+ */
 public class PaymentHistoryPanel extends JPanel {
     private PaymentDAO paymentDAO;
     private UserDAO userDAO;
@@ -59,6 +64,10 @@ public class PaymentHistoryPanel extends JPanel {
         userIdField.addActionListener(e -> loadPayments());
     }
 
+    /**
+     * Loads and displays payment history for the entered User ID.
+     * Shows payment ID, user ID, member name, amount, and date.
+     */
     private void loadPayments() {
         tableModel.setRowCount(0);
         String userIdText = userIdField.getText().trim();
@@ -102,6 +111,9 @@ public class PaymentHistoryPanel extends JPanel {
         }
     }
 
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm() {
         userIdField.setText("");
         memberLabel.setText(" ");
