@@ -13,9 +13,9 @@ public class BorrowRecord {
 
 
     //Constructor
-    public  BorrowRecord(){}
+    public BorrowRecord(){}
 
-    public BorrowRecord(long recordId, int bookId, int userId, LocalDate borrowDate,LocalDate dueDate, LocalDate returnDate, double fineAmount){
+    public BorrowRecord(long recordId, int bookId, int userId, LocalDate borrowDate, LocalDate dueDate, LocalDate returnDate, double fineAmount){
         this.recordId = recordId;
         this.bookId = bookId;
         this.userId = userId;
