@@ -118,13 +118,12 @@ public class MainDashboard extends JFrame {
         if (role.equalsIgnoreCase("member")) {
             contentPanel.add(new MyProfilePanel(userDAO, userEmail), "MyProfile");
             contentPanel.add(new MyBorrowingsPanel(borrowRecordDAO, bookDAO, userDAO, loggedInUserId), "MyBorrowings");
+            contentPanel.add(new MyFinesPanel(borrowRecordDAO, bookDAO, paymentDAO, loggedInUserId), "MyFines");
         } else {
             contentPanel.add(createPlaceholderPanel("My Profile - Staff View (Coming Soon)"), "MyProfile");
             contentPanel.add(createPlaceholderPanel("My Borrowings - Coming Soon"), "MyBorrowings");
+            contentPanel.add(createPlaceholderPanel("My Fines - Coming Soon"), "MyFines");
         }
-
-        // Placeholder panels
-        contentPanel.add(createPlaceholderPanel("My Fines - Coming Soon"), "MyFines");
 
         add(contentPanel);
         cardLayout.show(contentPanel, "Welcome");

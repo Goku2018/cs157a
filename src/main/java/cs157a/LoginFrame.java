@@ -101,41 +101,6 @@ public class LoginFrame extends JFrame {
         }
     }
 
-        /*try {
-            System.out.println("Calling DatabaseConnection.authenticate...");
-            User loggedInUser = DatabaseConnection.authenticate(email, password);
-
-            System.out.println("User found: " + (loggedInUser != null ? "YES" : "NO"));
-
-            if (loggedInUser != null) {
-                System.out.println("User Details:");
-                System.out.println("  - UserID: " + loggedInUser.getUserId());
-                System.out.println("  - FullName: " + loggedInUser.getFullName());
-                System.out.println("  - Status: " + loggedInUser.getStatus());
-                System.out.println("  - Email: " + loggedInUser.getEmail());
-
-                String dashboardRole = loggedInUser.getStatus().equalsIgnoreCase("Staff") ? "staff" : "member";
-                System.out.println("Dashboard role: " + dashboardRole);
-                System.out.println("Creating MainDashboard...");
-
-                messageLabel.setText("Login Successful (" + loggedInUser.getStatus() + ")");
-                new MainDashboard(dashboardRole, loggedInUser.getEmail(), loggedInUser.getUserId()).setVisible(true);
-                System.out.println("MainDashboard created, disposing LoginFrame...");
-                dispose();
-            } else {
-                System.out.println("Login failed: User not found or password incorrect");
-                messageLabel.setText("Invalid email or password. Try again");
-                passwordField.setText("");
-            }
-        } catch (Exception ex) {
-            System.out.println("EXCEPTION during login:");
-            ex.printStackTrace();
-            messageLabel.setText("Database error: " + ex.getMessage());
-            JOptionPane.showMessageDialog(this, "Unable to connect to database.\nError: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        System.out.println("========== END LOGIN ATTEMPT ==========\n");
-    }*/
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
