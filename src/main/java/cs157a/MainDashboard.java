@@ -8,19 +8,18 @@ public class MainDashboard extends JFrame {
     private String userEmail;
     private CardLayout cardLayout;
     private JPanel contentPanel;
-
+    private int loggedInUserId;
     private BookDAO bookDAO;
     private UserDAO userDAO;
     private BorrowRecordDAO borrowRecordDAO;
     private PaymentDAO paymentDAO;
 
-    public MainDashboard(String role, String email) {
-        System.out.println("========== MAIN DASHBOARD CREATED ==========");
-        System.out.println("Role: " + role);
-        System.out.println("Email: " + email);
+    public MainDashboard(String role, String email, int loggedInUserId) {
+
 
         this.userRole = role;
         this.userEmail = email;
+        this.loggedInUserId = loggedInUserId;
 
         bookDAO = new BookDAO();
         userDAO = new UserDAO();
@@ -116,23 +115,15 @@ public class MainDashboard extends JFrame {
         contentPanel.add(new ViewUnpaidFinesPanel(borrowRecordDAO, bookDAO, userDAO, paymentDAO), "UnpaidFines");
         contentPanel.add(new PaymentHistoryPanel(paymentDAO, userDAO), "PaymentHistory");
 
-        // MyProfile - only for members
         if (role.equalsIgnoreCase("member")) {
-            System.out.println("Creating MyProfilePanel for member: " + userEmail);
-            try {
-                contentPanel.add(new MyProfilePanel(userDAO, userEmail), "MyProfile");
-                System.out.println("MyProfilePanel created successfully");
-            } catch (Exception ex) {
-                System.out.println("ERROR creating MyProfilePanel:");
-                ex.printStackTrace();
-                contentPanel.add(createPlaceholderPanel("My Profile - Error Loading"), "MyProfile");
-            }
+            contentPanel.add(new MyProfilePanel(userDAO, userEmail), "MyProfile");
+            contentPanel.add(new MyBorrowingsPanel(borrowRecordDAO, bookDAO, userDAO, loggedInUserId), "MyBorrowings");
         } else {
             contentPanel.add(createPlaceholderPanel("My Profile - Staff View (Coming Soon)"), "MyProfile");
+            contentPanel.add(createPlaceholderPanel("My Borrowings - Coming Soon"), "MyBorrowings");
         }
 
         // Placeholder panels
-        contentPanel.add(createPlaceholderPanel("My Borrowings - Coming Soon"), "MyBorrowings");
         contentPanel.add(createPlaceholderPanel("My Fines - Coming Soon"), "MyFines");
 
         add(contentPanel);

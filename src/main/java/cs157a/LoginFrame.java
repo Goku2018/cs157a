@@ -75,17 +75,33 @@ public class LoginFrame extends JFrame {
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
-        System.out.println("========== LOGIN ATTEMPT ==========");
-        System.out.println("Email entered: " + email);
-        System.out.println("Password entered: " + password);
 
         if (email.isEmpty() || password.isEmpty()) {
             messageLabel.setText("Please fill in both fields.");
-            System.out.println("Login failed: Empty fields");
+
             return;
         }
 
         try {
+            User loggedInUser = DatabaseConnection.authenticate(email, password);
+            if (loggedInUser != null) {
+                String dashboardRole = loggedInUser.getStatus().equalsIgnoreCase("Staff") ? "staff" : "member";
+                messageLabel.setText("Login Successful (" + loggedInUser.getStatus() + ")");
+                // Pass role, email, and userId
+                new MainDashboard(dashboardRole, loggedInUser.getEmail(), loggedInUser.getUserId()).setVisible(true);
+                dispose();
+            } else {
+                messageLabel.setText("Invalid email or password. Try again");
+                passwordField.setText("");
+            }
+        } catch (Exception ex) {
+            messageLabel.setText("Database error: " + ex.getMessage());
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Unable to connect to database.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+        /*try {
             System.out.println("Calling DatabaseConnection.authenticate...");
             User loggedInUser = DatabaseConnection.authenticate(email, password);
 
@@ -103,7 +119,7 @@ public class LoginFrame extends JFrame {
                 System.out.println("Creating MainDashboard...");
 
                 messageLabel.setText("Login Successful (" + loggedInUser.getStatus() + ")");
-                new MainDashboard(dashboardRole, loggedInUser.getEmail()).setVisible(true);
+                new MainDashboard(dashboardRole, loggedInUser.getEmail(), loggedInUser.getUserId()).setVisible(true);
                 System.out.println("MainDashboard created, disposing LoginFrame...");
                 dispose();
             } else {
@@ -118,7 +134,8 @@ public class LoginFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Unable to connect to database.\nError: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
         System.out.println("========== END LOGIN ATTEMPT ==========\n");
-    }
+    }*/
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
