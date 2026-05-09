@@ -61,10 +61,6 @@ public class ActiveBorrowingsPanel extends JPanel {
             List<BorrowRecord> activeBorrowings = borrowRecordDAO.getActiveBorrowings();
 
             if (activeBorrowings == null || activeBorrowings.isEmpty()) {
-                //JOptionPane.showMessageDialog(this,
-                        //"No active borrowings found.",
-                        //"Information",
-                        //JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
 
