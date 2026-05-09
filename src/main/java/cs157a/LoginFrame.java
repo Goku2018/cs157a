@@ -5,11 +5,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
+/**
+ * Login window for the Library Management System.
+ * Authenticates users against the database and opens the main dashboard.
+ */
 public class LoginFrame extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
     private JLabel messageLabel;
 
+    /**
+     * Constructor - initializes the login window UI components.
+     */
     public LoginFrame() {
         setTitle("Library Management System - Login");
         setSize(600, 400);
@@ -71,6 +78,11 @@ public class LoginFrame extends JFrame {
         getRootPane().setDefaultButton(loginButton);
     }
 
+    /**
+     * Authenticates the user using email and password.
+     * If successful, opens the main dashboard and closes the login window.
+     * @param e The action event triggered by the login button
+     */
     private void authenticate(ActionEvent e) {
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
@@ -101,7 +113,10 @@ public class LoginFrame extends JFrame {
         }
     }
 
-
+    /**
+     * Main entry point for the application.
+     * @param args Command line arguments
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }

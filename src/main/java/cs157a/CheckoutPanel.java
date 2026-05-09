@@ -5,6 +5,11 @@ import javax.swing.BorderFactory;
 import java.awt.*;
 import java.time.LocalDate;
 
+/**
+ * Panel for staff to check out books to members.
+ * Allows member lookup by email, book lookup by ID,
+ * and creates a borrow record with 14-day due date.
+ */
 public class CheckoutPanel extends JPanel {
     private BorrowRecordDAO borrowRecordDAO;
     private BookDAO bookDAO;
@@ -26,13 +31,13 @@ public class CheckoutPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Form panel (reused from AddBookPanel)
+        // Form panel
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Row 0: Member Email (reused lookup pattern from ReturnPanel)
+        // Row 0: Member Email
         gbc.gridx = 0;
         gbc.gridy = 0;
         formPanel.add(new JLabel("Member Email:"), gbc);
@@ -100,7 +105,7 @@ public class CheckoutPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         formPanel.add(buttonPanel, gbc);
 
-        // Row 6: Status Label (reused from ProcessPaymentPanel)
+        // Row 6: Status Label
         statusLabel = new JLabel(" ");
         statusLabel.setForeground(Color.BLUE);
         gbc.gridy = 6;
@@ -115,7 +120,10 @@ public class CheckoutPanel extends JPanel {
         clearBtn.addActionListener(e -> clearForm());
     }
 
-    // Reused pattern from ReturnPanel
+    /**
+     * Looks up a member by email and displays their name.
+     * Called when "Lookup Member" button is clicked.
+     */
     private void lookupMember() {
         String email = memberEmailField.getText().trim();
         if (email.isEmpty()) {
@@ -141,7 +149,10 @@ public class CheckoutPanel extends JPanel {
         }
     }
 
-    // Reused pattern from ReturnPanel
+    /**
+     * Looks up a book by ID and displays its title and status.
+     * Called when "Lookup Book" button is clicked.
+     */
     private void lookupBook() {
         String bookIdStr = bookIdField.getText().trim();
         if (bookIdStr.isEmpty()) {
@@ -180,6 +191,11 @@ public class CheckoutPanel extends JPanel {
         }
     }
 
+    /**
+     * Checks out a book to a member.
+     * Validates member exists and book is available,
+     * then creates a borrow record and updates book status.
+     */
     private void checkoutBook() {
         String email = memberEmailField.getText().trim();
         String bookIdStr = bookIdField.getText().trim();
@@ -234,6 +250,9 @@ public class CheckoutPanel extends JPanel {
         }
     }
 
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm() {
         memberEmailField.setText("");
         bookIdField.setText("");

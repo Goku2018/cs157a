@@ -6,7 +6,12 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class ReturnPanel extends JPanel{
+/**
+ * Panel for staff to process book returns.
+ * Allows lookup by borrow record ID, displays book and member details,
+ * calculates fine if overdue, and processes the return.
+ */
+public class ReturnPanel extends JPanel {
     private BorrowRecordDAO borrowRecordDAO;
     private BookDAO bookDAO;
 
@@ -38,7 +43,7 @@ public class ReturnPanel extends JPanel{
         //Row 0 Borrow Record ID
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(new JLabel("Borrow  Record ID:"), gbc);
+        formPanel.add(new JLabel("Borrow Record ID:"), gbc);
         recordIdField = new JTextField(20);
         gbc.gridx = 1;
         formPanel.add(recordIdField, gbc);
@@ -121,6 +126,10 @@ public class ReturnPanel extends JPanel{
         clearButton.addActionListener(e-> clearForm());
     }
 
+    /**
+     * Looks up a borrow record by ID and displays its details.
+     * Shows book title, member name, borrow/due dates, and fine amount.
+     */
     private void lookupRecord(){
         String recordIdStr = recordIdField.getText().trim();
         if(recordIdStr.isEmpty()){
@@ -184,7 +193,7 @@ public class ReturnPanel extends JPanel{
             statusLabel.setForeground(Color.GREEN);
 
         } catch (NumberFormatException ex){
-            statusLabel.setText("Invalid ID.  Please enter a number.");
+            statusLabel.setText("Invalid ID. Please enter a number.");
             statusLabel.setForeground(Color.RED);
             ex.printStackTrace();
         } catch(Exception ex){
@@ -194,19 +203,29 @@ public class ReturnPanel extends JPanel{
         }
     }
 
+    /**
+     * Calculates the fine amount based on due date and current date.
+     * Fine is $0.25 per day late, capped at $50.00.
+     * @param dueDate The due date of the borrow record
+     * @return The calculated fine amount
+     */
     private double calculateFineDisplay(LocalDate dueDate){
         if(dueDate == null) return 0.0;
 
         LocalDate today = LocalDate.now();
         if(today.isAfter(dueDate)){
             long daysLate = ChronoUnit.DAYS.between(dueDate, today);
-            double fine = daysLate *.25;
+            double fine = daysLate * .25;
 
             return Math.min(fine, MAX_FINE_DISPLAY);
         }
         return 0.0;
     }
 
+    /**
+     * Processes the return of a book.
+     * Calls the DAO to update return date, calculate fine, and update book status.
+     */
     private void processRecord(){
         String recordIdStr = recordIdField.getText().trim();
         if(recordIdStr.isEmpty()){
@@ -236,6 +255,10 @@ public class ReturnPanel extends JPanel{
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    /**
+     * Clears the displayed book/member details.
+     */
     private void clearDisplay(){
         bookTitleLabel.setText(" ");
         memberNameLabel.setText(" ");
@@ -250,5 +273,4 @@ public class ReturnPanel extends JPanel{
         statusLabel.setText("Form cleared.");
         statusLabel.setForeground(Color.BLUE);
     }
-
 }

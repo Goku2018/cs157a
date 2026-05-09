@@ -2,6 +2,11 @@ package cs157a;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents a user in the library system.
+ * Can be either a Staff member or a Library Member.
+ * Stores personal information and login credentials.
+ */
 public class User {
     private int userId;
     private String fullName;
@@ -14,7 +19,18 @@ public class User {
 
     public User() {}
 
-    public User(int userId, String fullName, String email, String password, String status, String phone, String address) {
+    /**
+     * Constructor for creating a user with all fields.
+     * Registration date is automatically set to current time.
+     * @param userId The user's unique identifier
+     * @param fullName The user's full name
+     * @param email The user's email address (used for login)
+     * @param password The user's password
+     * @param status "Staff" or "Member"
+     * @param phone The user's phone number
+     * @param address The user's address
+     */
+    public User(int userId, String fullName, String password, String status, String email, String phone, String address) {
         this.userId = userId;
         this.fullName = fullName;
         this.email = email;

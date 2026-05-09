@@ -6,7 +6,13 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.Map;
 
-public class ProcessPaymentPanel extends JPanel{
+/**
+ * Panel for staff to process fine payments for members.
+ * Allows checking outstanding balance by User ID,
+ * entering payment amount (partial payments allowed),
+ * and recording the payment in the database.
+ */
+public class ProcessPaymentPanel extends JPanel {
     private PaymentDAO paymentDAO;
     private BorrowRecordDAO borrowRecordDAO;
 
@@ -77,6 +83,11 @@ public class ProcessPaymentPanel extends JPanel{
         clearButton.addActionListener(e-> clearForm());
 
     }
+
+    /**
+     * Checks the outstanding fine balance for a user and displays it.
+     * Called when "Check Balance" button is clicked.
+     */
     private void checkFine() {
         String userIdStr = userIdField.getText().trim();
         if (userIdStr.isEmpty()) {
@@ -102,6 +113,11 @@ public class ProcessPaymentPanel extends JPanel{
             ex.printStackTrace();
         }
     }
+
+    /**
+     * Processes a payment for a user's outstanding fine.
+     * Validates payment amount, records payment, and updates the balance.
+     */
     private void processPayment(){
         String userIdStr = userIdField.getText().trim();
         String amountStr = amountField.getText().trim();
@@ -139,9 +155,9 @@ public class ProcessPaymentPanel extends JPanel{
             }
             boolean success = paymentDAO.recordPaymentForUser(userId, amount, LocalDate.now());
             if(success){
-                statusLabel.setText("Payment of $" + String.format("%.2f ", amount) + " recorded successfully..");
+                statusLabel.setText("Payment of $" + String.format("%.2f ", amount) + " recorded successfully.");
                 statusLabel.setForeground(Color.GREEN);
-                JOptionPane.showMessageDialog(this, "Payment of $" + String.format("%.2f", amount) + "has been recorded.", "Payment Successful", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Payment of $" + String.format("%.2f", amount) + " has been recorded.", "Payment Successful", JOptionPane.INFORMATION_MESSAGE);
                 clearForm();
             } else{
                 statusLabel.setText("Payment failed. Try again.");
@@ -154,6 +170,12 @@ public class ProcessPaymentPanel extends JPanel{
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    /**
+     * Calculates the total amount owed by a user.
+     * @param userId The user's ID
+     * @return Total fines minus total paid
+     */
     private double getAmountOwedForUser(int userId) {
         Map<Integer, Double> fineTotalsByUser = borrowRecordDAO.getFineTotalsByUser();
         double totalFines = fineTotalsByUser.getOrDefault(userId, 0.0);
@@ -161,6 +183,9 @@ public class ProcessPaymentPanel extends JPanel{
         return totalFines - totalPaid;
     }
 
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm(){
         userIdField.setText("");
         amountField.setText("");
