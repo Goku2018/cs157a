@@ -4,6 +4,11 @@ import javax.swing.*;
 import javax.swing.BorderFactory;
 import java.awt.*;
 
+/**
+ * Panel for staff to delete members from the library system.
+ * Requires lookup by User ID first, displays member info,
+ * and requires confirmation before deletion.
+ */
 public class DeleteMemberPanel extends JPanel {
     private UserDAO userDAO;
 
@@ -105,6 +110,9 @@ public class DeleteMemberPanel extends JPanel {
         clearButton.addActionListener(e -> clearForm());
     }
 
+    /**
+     * Looks up a member by User ID and displays their information.
+     */
     private void lookupMember() {
         String userIdStr = userIdField.getText().trim();
         if (userIdStr.isEmpty()) {
@@ -142,6 +150,10 @@ public class DeleteMemberPanel extends JPanel {
         }
     }
 
+    /**
+     * Deletes a member after confirmation.
+     * Checks for active borrowings before deletion.
+     */
     private void deleteMember() {
         String userIdStr = userIdField.getText().trim();
         if (userIdStr.isEmpty()) {
@@ -195,12 +207,18 @@ public class DeleteMemberPanel extends JPanel {
         }
     }
 
+    /**
+     * Clears the displayed member information labels.
+     */
     private void clearDisplay() {
         memberNameLabel.setText(" ");
         memberEmailLabel.setText(" ");
         memberStatusLabel.setText(" ");
     }
 
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm() {
         userIdField.setText("");
         clearDisplay();

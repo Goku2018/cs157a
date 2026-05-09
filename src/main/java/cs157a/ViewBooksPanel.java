@@ -5,6 +5,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * Panel for displaying all books in the library.
+ * Shows book ID, title, author, genre, ISBN, and status in a table.
+ * Auto-refreshes when the panel becomes visible.
+ */
 public class ViewBooksPanel extends JPanel {
     private BookDAO bookDAO;
     private JTable table;
@@ -23,8 +28,8 @@ public class ViewBooksPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        addHierarchyListener(e ->{
-            if(isShowing()){
+        addHierarchyListener(e -> {
+            if(isShowing()) {
                 refreshTable();
             }
         });
@@ -37,8 +42,12 @@ public class ViewBooksPanel extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
 
         refreshTable();
-
     }
+
+    /**
+     * Refreshes the book table by loading all books from the database.
+     * Clears existing rows and repopulates with current data.
+     */
     private void refreshTable(){
         tableModel.setRowCount(0); // clear existing rows
         List<Book> books = bookDAO.getAllBooks();  // calls backend

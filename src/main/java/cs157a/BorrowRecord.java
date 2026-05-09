@@ -2,6 +2,10 @@ package cs157a;
 
 import java.time.LocalDate;
 
+/**
+ * Represents a borrowing transaction in the library system.
+ * Tracks which book was borrowed by which user, along with dates and fine amounts.
+ */
 public class BorrowRecord {
     private long recordId;
     private int bookId;
@@ -15,7 +19,7 @@ public class BorrowRecord {
     //Constructor
     public BorrowRecord(){}
 
-    public BorrowRecord(long recordId, int bookId, int userId, LocalDate borrowDate, LocalDate dueDate, LocalDate returnDate, double fineAmount){
+    public BorrowRecord(long recordId, int bookId, int userId, LocalDate borrowDate, LocalDate dueDate, LocalDate returnDate, double fineAmount) {
         this.recordId = recordId;
         this.bookId = bookId;
         this.userId = userId;
@@ -81,5 +85,4 @@ public class BorrowRecord {
     public void setFineAmount(double fineAmount){
         this.fineAmount = fineAmount;
     }
-
 }

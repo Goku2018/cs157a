@@ -5,6 +5,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * Panel for displaying all members in the library system.
+ * Shows user ID, name, email, phone, address, status, and registration date.
+ * Auto-refreshes when the panel becomes visible.
+ */
 public class ViewMembersPanel extends JPanel {
     private UserDAO userDAO;
     private JTable table;
@@ -23,8 +28,8 @@ public class ViewMembersPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        addHierarchyListener(e ->{
-            if(isShowing()){
+        addHierarchyListener(e -> {
+            if(isShowing()) {
                 refreshTable();
             }
         });
@@ -39,7 +44,12 @@ public class ViewMembersPanel extends JPanel {
         // Load data initially
         refreshTable();
     }
-    private void refreshTable(){
+
+    /**
+     * Refreshes the member table by loading all members from the database.
+     * Clears existing rows and repopulates with current data.
+     */
+    private void refreshTable() {
         tableModel.setRowCount(0); // clear existing rows
         List<User> members = userDAO.getAllMembers();  // calls backend
 
@@ -56,8 +66,8 @@ public class ViewMembersPanel extends JPanel {
                 };
                 tableModel.addRow(row);
             }
-        }catch(Exception ex){
-            JOptionPane.showMessageDialog(this, "Error loading books: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }catch(Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error loading members: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
     }

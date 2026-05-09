@@ -7,6 +7,10 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
 
+/**
+ * Panel for searching books by title, author, or genre.
+ * Displays search results in a table with book details.
+ */
 public class SearchBooksPanel extends JPanel {
     private BookDAO bookDAO;
     private JTextField searchField;
@@ -42,7 +46,7 @@ public class SearchBooksPanel extends JPanel {
 
         //Center panel: results table
         String[] columns = {"Book ID", "Title", "Author", "Genre", "ISBN", "Status"};
-        tableModel = new DefaultTableModel(columns, 0){
+        tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column){
                 return false; // read-only
@@ -61,12 +65,17 @@ public class SearchBooksPanel extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
 
         //Event Handlers
-        searchButton.addActionListener(e->performSearch());
-        clearButton.addActionListener(e->clearSearch());
-        searchField.addActionListener(e->performSearch()); //Trigger search
+        searchButton.addActionListener(e -> performSearch());
+        clearButton.addActionListener(e -> clearSearch());
+        searchField.addActionListener(e -> performSearch()); //Trigger search
 
         }
-        private void performSearch(){
+
+        /**
+         * Performs a search based on user input.
+         * Calls the DAO to search books by the selected search type.
+         */
+        private void performSearch() {
             String keyword = searchField.getText().trim();
             if(keyword.isEmpty()){
                 statusLabel.setText("Please enter a keyword to search");
@@ -87,7 +96,7 @@ public class SearchBooksPanel extends JPanel {
 
                 }else{
                     for(Book book : results){
-                        Object[] row =  {
+                        Object[] row = {
                                 book.getBookId(),
                                 book.getTitle(),
                                 book.getAuthor(),
@@ -99,14 +108,17 @@ public class SearchBooksPanel extends JPanel {
                     }
                     statusLabel.setText("Found " + results.size() + " book(s).");
                 }
-            } catch(Exception ex){
+            } catch(Exception ex) {
                 statusLabel.setText("Search failed.");
                 JOptionPane.showMessageDialog(this, "Error performing search: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
-
             }
         }
-        private void clearSearch(){
+
+        /**
+         * Clears the search field and result table.
+         */
+        private void clearSearch() {
             searchField.setText("");
             tableModel.setRowCount(0);
             statusLabel.setText("Search cleared. Enter a keyword and click Search.");

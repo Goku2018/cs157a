@@ -3,6 +3,12 @@ package cs157a;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Panel for staff to delete books from the library system.
+ * Requires lookup by Book ID first, displays book details,
+ * and requires confirmation before deletion.
+ * Only allows deletion if book is not currently borrowed.
+ */
 public class DeleteBookPanel extends JPanel {
     private BookDAO bookDAO;
     private JTextField bookIdField;
@@ -72,6 +78,14 @@ public class DeleteBookPanel extends JPanel {
         bookIdField.addActionListener(e -> loadBook());
     }
 
+    /**
+     * Helper method to add a read-only row to the form.
+     * @param formPanel The panel to add the row to
+     * @param gbc GridBagConstraints for layout
+     * @param row Row index
+     * @param label Label text
+     * @param valueLabel Label to display the value
+     */
     private void addReadOnlyRow(JPanel formPanel, GridBagConstraints gbc, int row, String label, JLabel valueLabel) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -85,6 +99,9 @@ public class DeleteBookPanel extends JPanel {
         gbc.gridwidth = 1;
     }
 
+    /**
+     * Loads a book by ID and displays its details.
+     */
     private void loadBook() {
         Integer bookId = readBookId();
         if(bookId == null){
@@ -115,6 +132,10 @@ public class DeleteBookPanel extends JPanel {
         }
     }
 
+    /**
+     * Deletes a book after confirmation.
+     * Checks if the book is borrowed before deletion.
+     */
     private void deleteBook() {
         Integer bookId = readBookId();
         if(bookId == null){
@@ -159,6 +180,10 @@ public class DeleteBookPanel extends JPanel {
         }
     }
 
+    /**
+     * Reads and validates the Book ID from the text field.
+     * @return Book ID as Integer, or null if invalid
+     */
     private Integer readBookId() {
         String value = bookIdField.getText().trim();
         if(value.isEmpty()){
@@ -176,6 +201,9 @@ public class DeleteBookPanel extends JPanel {
         }
     }
 
+    /**
+     * Clears the displayed book detail labels.
+     */
     private void clearBookDetails() {
         titleValueLabel.setText(" ");
         authorValueLabel.setText(" ");
@@ -184,6 +212,9 @@ public class DeleteBookPanel extends JPanel {
         statusValueLabel.setText(" ");
     }
 
+    /**
+     * Clears all input fields and resets the form.
+     */
     private void clearForm() {
         bookIdField.setText("");
         loadedBook = null;
