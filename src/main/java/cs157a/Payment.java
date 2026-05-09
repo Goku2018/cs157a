@@ -2,37 +2,41 @@ package cs157a;
 
 import java.time.LocalDate;
 
+/**
+ * Represents a payment made for a fine in the library system.
+ * Can be linked either by borrow record ID (staff view) or user ID (member view).
+ */
 public class Payment {
-    private long paymentID;
+    private long paymentId;
     private long borrowRecordId; //Foreign key
     private int userId;
     private double paymentAmount;
     private LocalDate paymentDate;
 
     //Constructor
-    public  Payment(){}
+    public  Payment() {}
 
     public Payment(long paymentId, long borrowRecordId, double paymentAmount, LocalDate paymentDate){
-        this.paymentID = paymentId;
+        this.paymentId = paymentId;
         this.borrowRecordId = borrowRecordId;
         this.paymentAmount = paymentAmount;
         this.paymentDate = paymentDate;
     }
 
-    public Payment(long paymentId, int userId, double paymentAmount, LocalDate paymentDate){
-        this.paymentID = paymentId;
+    public Payment(long paymentId, int userId, double paymentAmount, LocalDate paymentDate) {
+        this.paymentId = paymentId;
         this.userId = userId;
         this.paymentAmount = paymentAmount;
         this.paymentDate = paymentDate;
     }
 
     //Getters and Setters
-    public long getPaymentID(){
-        return paymentID;
+    public long getPaymentId(){
+        return paymentId;
     }
 
-    public void setPaymentID(long paymentId){
-        this.paymentID = paymentId;
+    public void setPaymentId(long paymentId){
+        this.paymentId = paymentId;
     }
 
     public long getBorrowRecordId(){
@@ -66,7 +70,5 @@ public class Payment {
     public void setPaymentDate(LocalDate paymentDate){
         this.paymentDate = paymentDate;
     }
-
-
 
 }

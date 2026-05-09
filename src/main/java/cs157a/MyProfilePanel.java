@@ -6,6 +6,11 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Panel for members to view and edit their own profile information.
+ * Displays user ID, status, registration date, and editable fields.
+ * Allows updating name, email, password, phone, and address.
+ */
 public class MyProfilePanel extends JPanel {
     private UserDAO userDAO;
     private String userEmail;
@@ -22,9 +27,6 @@ public class MyProfilePanel extends JPanel {
     private JLabel registrationDateLabel;
 
     public MyProfilePanel(UserDAO userDAO, String userEmail) {
-        System.out.println("========== MY PROFILE PANEL CREATED ==========");
-        System.out.println("userEmail received: " + userEmail);
-
         this.userDAO = userDAO;
         this.userEmail = userEmail;
 
@@ -142,18 +144,18 @@ public class MyProfilePanel extends JPanel {
         resetButton.addActionListener(e -> resetForm());
 
         // NOW load user data AFTER all UI components are created
-        System.out.println("Loading user data for email: " + userEmail);
+
         loadUserData();
 
-        System.out.println("MyProfilePanel initialization complete");
-        System.out.println("====================================\n");
     }
 
+    /**
+     * Loads user data from the database and populates the form fields.
+     */
     private void loadUserData() {
-        System.out.println("loadUserData() called for email: " + userEmail);
+
         try {
             User user = userDAO.getUserByEmail(userEmail);
-            System.out.println("User from database: " + (user != null ? "FOUND" : "NULL"));
 
             if (user != null) {
                 userId = user.getUserId();
@@ -171,20 +173,21 @@ public class MyProfilePanel extends JPanel {
                 }
                 statusLabel.setText("Profile loaded.");
                 statusLabel.setForeground(Color.BLUE);
-                System.out.println("User data loaded successfully for: " + user.getFullName());
             } else {
-                System.out.println("ERROR: User not found with email: " + userEmail);
                 statusLabel.setText("Error: User not found.");
                 statusLabel.setForeground(Color.RED);
             }
         } catch (Exception ex) {
-            System.out.println("EXCEPTION in loadUserData():");
             ex.printStackTrace();
             statusLabel.setText("Error loading profile: " + ex.getMessage());
             statusLabel.setForeground(Color.RED);
         }
     }
 
+    /**
+     * Updates the user's profile with the entered information.
+     * Validates input before sending to the database.
+     */
     private void updateProfile() {
         String fullName = fullNameField.getText().trim();
         String email = emailField.getText().trim();
@@ -241,6 +244,9 @@ public class MyProfilePanel extends JPanel {
         }
     }
 
+    /**
+     * Resets the form to the current saved values from the database.
+     */
     private void resetForm() {
         loadUserData();
         statusLabel.setText("Form reset to saved values.");

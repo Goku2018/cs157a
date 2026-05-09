@@ -5,7 +5,13 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.BorderFactory;
 
+/**
+ * Panel for members to view their own borrowing history.
+ * Shows book title, borrow date, due date, return date, and fine amount.
+ * Auto-refreshes when the panel becomes visible.
+ */
 public class MyBorrowingsPanel extends JPanel {
     private BorrowRecordDAO borrowRecordDAO;
     private BookDAO bookDAO;
@@ -67,6 +73,10 @@ public class MyBorrowingsPanel extends JPanel {
         loadBorrowings();
     }
 
+    /**
+     * Loads and displays the current member's borrowing history.
+     * Retrieves data from the database and populates the table.
+     */
     private void loadBorrowings() {
         tableModel.setRowCount(0);
         statusLabel.setText("Loading your borrowing history...");

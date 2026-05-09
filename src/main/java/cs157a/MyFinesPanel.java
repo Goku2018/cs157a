@@ -5,7 +5,13 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.BorderFactory;
 
+/**
+ * Panel for members to view their own unpaid fines.
+ * Shows book title, borrow date, due date, fine amount, paid amount, and amount owed.
+ * Auto-refreshes when the panel becomes visible.
+ */
 public class MyFinesPanel extends JPanel {
     private BorrowRecordDAO borrowRecordDAO;
     private BookDAO bookDAO;
@@ -64,6 +70,11 @@ public class MyFinesPanel extends JPanel {
         loadFines();
     }
 
+    /**
+     * Loads and displays the current member's unpaid fines.
+     * Calculates amount owed by subtracting paid amount from fine amount.
+     * Only shows records where amount owed > $0.01.
+     */
     private void loadFines() {
         tableModel.setRowCount(0);
         statusLabel.setText("Loading your unpaid fines...");
