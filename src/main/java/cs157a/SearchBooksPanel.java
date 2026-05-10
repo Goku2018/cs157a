@@ -82,6 +82,8 @@ public class SearchBooksPanel extends JPanel {
                 return;
             }
             String searchType = (String) searchTypeCombo.getSelectedItem();
+
+            //String searchType = (String) searchTypeCombo.getSelectedItem();
             statusLabel.setText("Searching for " + searchType + " containing '" + keyword + "'...");
 
             //Clear results
@@ -89,7 +91,7 @@ public class SearchBooksPanel extends JPanel {
 
             //Call backend with try catch
             try{
-                List<Book> results = bookDAO.searchBooks(keyword, searchType.toLowerCase());
+                List<Book> results = bookDAO.searchBooks(keyword, searchType);
 
                 if(results == null || results.isEmpty()){
                     statusLabel.setText("No books found matching '" + keyword + "' in " + searchType);

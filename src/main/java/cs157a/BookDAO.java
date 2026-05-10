@@ -14,7 +14,7 @@ public class BookDAO {
     private ISBNDAO isbnDAO = new ISBNDAO();
     private static final String BOOK_SELECT =
             "SELECT b.BookID, b.ISBN, b.Status, i.Title, i.Author, i.Genre " +
-            "FROM Books b LEFT JOIN ISBNs i ON b.ISBN = i.ISBN";
+                    "FROM Books b LEFT JOIN ISBNs i ON b.ISBN = i.ISBN";
 
     private String blankIfNull(String value) {
         return value == null ? "" : value;

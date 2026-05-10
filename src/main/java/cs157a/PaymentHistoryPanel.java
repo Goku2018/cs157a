@@ -91,7 +91,7 @@ public class PaymentHistoryPanel extends JPanel {
                 totalPaid += payment.getPaymentAmount();
                 String paymentDate = payment.getPaymentDate() == null ? "N/A" : payment.getPaymentDate().format(dateFormatter);
                 tableModel.addRow(new Object[]{
-                        payment.getPaymentID(),
+                        payment.getPaymentId(),
                         payment.getUserId(),
                         memberName,
                         String.format("$%.2f", payment.getPaymentAmount()),

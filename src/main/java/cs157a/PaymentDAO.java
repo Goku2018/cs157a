@@ -117,7 +117,7 @@ public class PaymentDAO {
             try(ResultSet rs = stmt.executeQuery()){
                 while(rs.next()){
                     Payment payment = new Payment();
-                    payment.setPaymentID(rs.getLong("PaymentID"));
+                    payment.setPaymentId(rs.getLong("PaymentID"));
                     payment.setUserId(rs.getInt("UserID"));
                     payment.setPaymentAmount(rs.getDouble("PaymentAmount"));
                     Date paymentDate = rs.getDate("PaymentDate");
