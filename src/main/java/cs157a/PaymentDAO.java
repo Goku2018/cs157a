@@ -1,15 +1,3 @@
-/*package cs157a;
-
-import java.time.LocalDate;
-
-
-public class PaymentDAO {
-    List<Payment> getPaymentHistory();
-
-
-}
-*/
-
 package cs157a;
 
 import java.sql.Connection;
@@ -22,15 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentDAO {
-    // PaymentDAO.java
 
-    // Record a payment for a specific borrow record (fine payment)
+    // Record a payment when the UI still supplies a borrow record ID.
     boolean recordPayment(long borrowRecordId, double amount, LocalDate paymentDate) {
         if (amount <= 0) {
             return false;
         }
 
         String userSql = "SELECT UserID FROM BorrowRecords WHERE RecordID = ?";
+
+        // Convert borrow record ID to UserID because PaymentRecords stores payments by user.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(userSql)) {
             stmt.setLong(1, borrowRecordId);
@@ -48,11 +37,14 @@ public class PaymentDAO {
     }
 
     boolean recordPaymentForUser(int userId, double amount, LocalDate paymentDate) {
+        // Reject zero or negative payments before opening a database connection.
         if (amount <= 0) {
             return false;
         }
 
         String sql = "INSERT INTO PaymentRecords (UserID, PaymentAmount, PaymentDate) VALUES (?, ?, ?)";
+
+        // Insert one payment row for the user's overall fine balance.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
@@ -70,6 +62,8 @@ public class PaymentDAO {
         String sql = "SELECT COALESCE(SUM(p.PaymentAmount), 0) AS TotalPaid " +
                 "FROM BorrowRecords b JOIN PaymentRecords p ON b.UserID = p.UserID " +
                 "WHERE b.RecordID = ?";
+
+        // Join through BorrowRecords so older panels can ask by RecordID.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, borrowRecordId);
@@ -88,6 +82,8 @@ public class PaymentDAO {
 
     double getTotalPaidForUser(int userId) {
         String sql = "SELECT COALESCE(SUM(PaymentAmount), 0) AS TotalPaid FROM PaymentRecords WHERE UserID = ?";
+
+        // Sum all payments for a user to calculate remaining fine balance.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
@@ -104,17 +100,20 @@ public class PaymentDAO {
         return 0.0;
     }
 
-    // Get all payments made by a user (join with BorrowRecords)
+    // Get all payments made by a user.
     List<Payment> getPaymentsByUser(int userId) {
         List<Payment> payments = new ArrayList<>();
         String sql = "SELECT PaymentID, UserID, PaymentAmount, PaymentDate " +
                 "FROM PaymentRecords " +
                 "WHERE UserID = ? " +
                 "ORDER BY PaymentDate DESC, PaymentID DESC";
+
+        // Fetch the user's payment history newest-first for the Payment History panel.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             try(ResultSet rs = stmt.executeQuery()){
+                // Map each payment row into a Payment object for the table model.
                 while(rs.next()){
                     Payment payment = new Payment();
                     payment.setPaymentId(rs.getLong("PaymentID"));

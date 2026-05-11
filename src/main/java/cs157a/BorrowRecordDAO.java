@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 public class BorrowRecordDAO {
-    // BorrowRecordDAO.java
-
     private static final double DAILY_FINE_RATE = 0.25;
     private static final double MAX_FINE_AMOUNT = 50.00;
 
+    // Used whenever fines are viewed to update FineAmount based on the current date.
     void updateActiveFines() {
+        // Recalculate active-record fines in SQL using BorrowDate + 14 days and the $50 cap.
         String sql = "UPDATE BorrowRecords " +
                 "SET FineAmount = LEAST(" +
                 "GREATEST(DATEDIFF(CURDATE(), DATE_ADD(DATE(BorrowDate), INTERVAL 14 DAY)), 0) * ?, " +
@@ -41,15 +41,18 @@ public class BorrowRecordDAO {
         String insertSql = "INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, FineAmount) VALUES (?, ?, NOW(), 0.00)";
         String updateSql = "UPDATE Books SET Status = 'Borrowed' WHERE BookID = ? AND Status = 'Available'";
         try (Connection conn = DatabaseConnection.getConnection()) {
+            // Checkout changes two tables, so use one transaction for both updates.
             conn.setAutoCommit(false);
             try (PreparedStatement updateBook = conn.prepareStatement(updateSql);
                  PreparedStatement insertRecord = conn.prepareStatement(insertSql)) {
+                // Mark the book borrowed only if it is currently available.
                 updateBook.setInt(1, bookId);
                 if (updateBook.executeUpdate() != 1) {
                     conn.rollback();
                     return false;
                 }
 
+                // Create the borrow record after the book status update succeeds.
                 insertRecord.setInt(1, bookId);
                 insertRecord.setInt(2, userId);
                 boolean success = insertRecord.executeUpdate() == 1;
@@ -78,10 +81,12 @@ public class BorrowRecordDAO {
         String returnSql = "UPDATE BorrowRecords SET ReturnDate = NOW(), FineAmount = ? WHERE RecordID = ? AND ReturnDate IS NULL";
         String bookSql = "UPDATE Books SET Status = ? WHERE BookID = ?";
         try (Connection conn = DatabaseConnection.getConnection()) {
+            // Returning a book updates both BorrowRecords and Books in one transaction.
             conn.setAutoCommit(false);
             try (PreparedStatement findStmt = conn.prepareStatement(findSql);
                  PreparedStatement returnStmt = conn.prepareStatement(returnSql);
                  PreparedStatement bookStmt = conn.prepareStatement(bookSql)) {
+                // Load the record first so already-returned or missing records are rejected.
                 findStmt.setLong(1, recordId);
                 int bookId;
                 try (ResultSet rs = findStmt.executeQuery()) {
@@ -96,9 +101,11 @@ public class BorrowRecordDAO {
                     }
                 }
 
+                // Calculate the final fine before saving ReturnDate.
                 double fine = calculateFine(recordId);
                 returnStmt.setLong(2, recordId);
                 returnStmt.setDouble(1, fine);
+                // If the fine reaches the cap, mark the book lost; otherwise return it to circulation.
                 bookStmt.setString(1, fine >= MAX_FINE_AMOUNT ? "Lost" : "Available");
                 bookStmt.setInt(2, bookId);
                 boolean success = returnStmt.executeUpdate() == 1;
@@ -127,6 +134,7 @@ public class BorrowRecordDAO {
         List<BorrowRecord> activeRecords = new ArrayList<>();
         String sql = "SELECT * FROM BorrowRecords WHERE ReturnDate IS NULL ORDER BY BorrowDate DESC";
 
+        // Query only active rows and map them for the active borrowings table.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -143,41 +151,18 @@ public class BorrowRecordDAO {
         }
         return activeRecords;
     }
-    /*
-    // Get all currently borrowed books (ReturnDate IS NULL)
-    List<BorrowRecord> getActiveBorrowings(){
-        List<BorrowRecord> activeRecords = new ArrayList<>();
-        String sql = "SELECT * FROM BorrowRecords WHERE ReturnDate IS NULL ORDER BY BorrowDate DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()){
-                while(rs.next()){
-                    activeRecords.add(mapBorrowRecord(rs));
-                }
-        } catch (SQLException e){
-            e.printStackTrace();
-            throw new RuntimeException("Failed to fetch active borrowings. Database error.", e);
-
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new RuntimeException("Failed to fetch active borrowings.", e);
-
-        }
-        return activeRecords;
-    }
-*/
     // Get borrowing history for a specific user
     List<BorrowRecord> getBorrowingsByUser(int userId){
         return getBorrowRecords(userId, null, false);
     }
 
     List<BorrowRecord> getBorrowRecords(Integer userId, Integer bookId, boolean activeOnly){
-        //updateActiveFines();
         List<BorrowRecord> records = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT RecordID, BookID, UserID, BorrowDate, ReturnDate, FineAmount FROM BorrowRecords WHERE 1 = 1");
         List<Integer> params = new ArrayList<>();
 
+        // Build optional filters while still binding values through PreparedStatement.
         if(userId != null){
             sql.append(" AND UserID = ?");
             params.add(userId);
@@ -193,6 +178,7 @@ public class BorrowRecordDAO {
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            // Bind optional filter values in the same order they were added to the SQL.
             for(int i = 0; i < params.size(); i++){
                 stmt.setInt(i + 1, params.get(i));
             }
@@ -214,6 +200,7 @@ public class BorrowRecordDAO {
         String sql = "SELECT BookID, BorrowDate, ReturnDate FROM BorrowRecords WHERE RecordID = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // Load dates needed to derive due date and overdue days.
             stmt.setLong(1, recordId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) {
@@ -227,6 +214,7 @@ public class BorrowRecordDAO {
                     return 0.0;
                 }
 
+                // DueDate is not stored in the schema; it is calculated as BorrowDate + 14 days.
                 LocalDate dueDate = borrowDate.toLocalDateTime().toLocalDate().plusDays(14);
                 LocalDate endDate = returnDate == null ? LocalDate.now() : returnDate.toLocalDateTime().toLocalDate();
                 long overdueDays = ChronoUnit.DAYS.between(dueDate, endDate);
@@ -248,6 +236,8 @@ public class BorrowRecordDAO {
 
     private void markBookLost(int bookId) {
         String sql = "UPDATE Books SET Status = 'Lost' WHERE BookID = ? AND Status = 'Borrowed'";
+
+        // Mark long-overdue active books as lost without changing already-returned books.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookId);
@@ -262,6 +252,8 @@ public class BorrowRecordDAO {
     BorrowRecord getBorrowRecordById(long recordId) {
         updateActiveFines();
         String sql = "SELECT RecordID, BookID, UserID, BorrowDate, ReturnDate, FineAmount FROM BorrowRecords WHERE RecordID = ?";
+
+        // Fetch a single borrow record for return lookup or detail views.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, recordId);
@@ -278,9 +270,8 @@ public class BorrowRecordDAO {
         }
     }
 
-
-/*
     private BorrowRecord mapBorrowRecord(ResultSet rs) throws SQLException {
+        // Shared mapper for BorrowRecords rows. It derives DueDate for display only.
         BorrowRecord record = new BorrowRecord();
         record.setRecordId(rs.getLong("RecordID"));
         record.setBookId(rs.getInt("BookID"));
@@ -301,36 +292,6 @@ public class BorrowRecordDAO {
         record.setFineAmount(rs.getDouble("FineAmount"));
         return record;
     }
-    */
-private BorrowRecord mapBorrowRecord(ResultSet rs) throws SQLException {
-    BorrowRecord record = new BorrowRecord();
-    record.setRecordId(rs.getLong("RecordID"));
-    record.setBookId(rs.getInt("BookID"));
-    record.setUserId(rs.getInt("UserID"));
-
-    Timestamp borrowDate = rs.getTimestamp("BorrowDate");
-    Timestamp returnDate = rs.getTimestamp("ReturnDate");
-
-    if (borrowDate != null) {
-        LocalDate borrowLocalDate = borrowDate.toLocalDateTime().toLocalDate();
-        record.setBorrowDate(borrowLocalDate);
-        record.setDueDate(borrowLocalDate.plusDays(14));
-    }
-    if (returnDate != null) {
-        record.setReturnDate(returnDate.toLocalDateTime().toLocalDate());
-    }
-
-    record.setFineAmount(rs.getDouble("FineAmount"));
-    return record;
-}
-
-    // Placeholder for getUnpaidFines - returns empty list for now
-    // Partner will implement real version with database query
-    List<BorrowRecord> getUnpaidFines() {
-        updateActiveFines();
-        System.out.println("WARNING: getUnpaidFines() placeholder called - returns empty list");
-        return new ArrayList<>();  // Returns empty list for now
-    }
 
     Map<Integer, Double> getFineTotalsByUser() {
         updateActiveFines();
@@ -340,6 +301,8 @@ private BorrowRecord mapBorrowRecord(ResultSet rs) throws SQLException {
                 "WHERE UserID IS NOT NULL AND FineAmount > 0 " +
                 "GROUP BY UserID " +
                 "ORDER BY UserID";
+
+        // Aggregate all fines by user for unpaid-fines and payment-balance screens.
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
