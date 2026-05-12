@@ -1,5 +1,5 @@
 
---to run this file: mysql -u <user> -p <your database name> < create_schema.sql
+-- to run this file: mysql -u <user> -p <your database name> < create_schema.sql
 
 -- USE <your database name>
 USE cs157a_library_system;

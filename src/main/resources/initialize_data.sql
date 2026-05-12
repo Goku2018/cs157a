@@ -1,9 +1,9 @@
---to run this file: mysql -u <user> -p <your database name> < initialize_data.sql
+-- to run this file: mysql -u <user> -p <your database name> < initialize_data.sql
 -- =====================================================
 -- USE YOUR DATABASE
 -- =====================================================
 -- USE <your database name>
-USE librarydb;
+USE cs157a_library_system;
 
 INSERT INTO Users (FullName, Password, Status, Email, Phone, Address) VALUES
 ('John Smith', 'pass123', 'Member', 'john.smith@sjsu.edu', '555-0101', '123 Main St, San Jose, CA'),
@@ -47,20 +47,20 @@ INSERT INTO ISBNs (ISBN, Title, Author, Genre) VALUES
 
 INSERT INTO Books (ISBN, Status) VALUES
 ('9780743273565', 'Available'),
-('9780061120084', 'Borrowed'),
-('9780452284234', 'Available'),
+('9780061120084', 'Available'),
+('9780452284234', 'Borrowed'),
 ('9780141439518', 'Available'),
 ('9780316769480', 'Borrowed'),
 ('9780142437247', 'Available'),
 ('9780143035008', 'Available'),
 ('9780547928227', 'Borrowed'),
 ('9780143058144', 'Available'),
-('9780062502174', 'Available'),
+('9780062502174', 'Borrowed'),
 ('9780439708180', 'Borrowed'),
 ('9780385504205', 'Available'),
-('9780439023481', 'Available'),
-('9780307387899', 'Borrowed'),
-('9780307588364', 'Available');
+('9780439023481', 'Borrowed'),
+('9780307387899', 'Available'),
+('9780307588364', 'Borrowed');
 
 INSERT INTO BorrowRecords (BookID, UserID, BorrowDate, ReturnDate, FineAmount) VALUES
 (1, 2, '2025-04-01 10:00:00', '2025-04-14 10:00:00', 0.00),
